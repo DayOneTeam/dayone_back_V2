@@ -1,5 +1,7 @@
 package dayone.dayone.booklog.entity.value;
 
+import dayone.dayone.booklog.exception.BookLogErrorCode;
+import dayone.dayone.booklog.exception.BookLogException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,7 +21,8 @@ class CommentTest {
         // when
         // then
         assertThatThrownBy(() -> new Comment(comment))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(BookLogException.class)
+            .hasMessage(BookLogErrorCode.COMMENT_BLANK_AND_NULL.getMessage());
     }
 
     @DisplayName("자신의 생각은 5000자를 넘기면 예외를 발생합니다.")
@@ -31,6 +34,7 @@ class CommentTest {
         // when
         // then
         assertThatThrownBy(() -> new Comment(wrongComment))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(BookLogException.class)
+            .hasMessage(BookLogErrorCode.COMMENT_LENGTH_OVER.getMessage());
     }
 }

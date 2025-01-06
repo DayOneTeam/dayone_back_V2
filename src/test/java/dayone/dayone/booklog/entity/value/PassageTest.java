@@ -1,5 +1,7 @@
 package dayone.dayone.booklog.entity.value;
 
+import dayone.dayone.booklog.exception.BookLogErrorCode;
+import dayone.dayone.booklog.exception.BookLogException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,7 +21,8 @@ class PassageTest {
         // when
         // then
         assertThatThrownBy(() -> new Passage(passage))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(BookLogException.class)
+            .hasMessage(BookLogErrorCode.PASSAGE_BLANK_AND_NULL.getMessage());
     }
 
     @DisplayName("구절은 1000자를 넘기면 예외를 발생합니다.")
@@ -30,6 +33,7 @@ class PassageTest {
         // when
         // then
         assertThatThrownBy(() -> new Passage(wrongPassage))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(BookLogException.class)
+            .hasMessage(BookLogErrorCode.PASSAGE_LENGTH_OVER.getMessage());
     }
 }

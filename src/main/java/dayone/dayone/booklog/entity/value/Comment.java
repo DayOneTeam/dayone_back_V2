@@ -1,5 +1,7 @@
 package dayone.dayone.booklog.entity.value;
 
+import dayone.dayone.booklog.exception.BookLogErrorCode;
+import dayone.dayone.booklog.exception.BookLogException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -25,11 +27,10 @@ public class Comment {
 
     private void validate(final String value) {
         if (Objects.isNull(value) || value.isBlank()) {
-            // TODO: 추후에 커스텀 예외 처리로 변경하기
-            throw new IllegalArgumentException("자신의 생각은 비어있어나 null 일 수 없습니다.");
+            throw new BookLogException(BookLogErrorCode.COMMENT_BLANK_AND_NULL);
         }
         if (value.length() > COMMENT_MAX_LENGTH) {
-            throw new IllegalArgumentException(String.format("책에 대한 자신의 생각은 %d을 넘길 수 없습니다.", COMMENT_MAX_LENGTH));
+            throw new BookLogException(BookLogErrorCode.COMMENT_LENGTH_OVER);
         }
     }
 }
