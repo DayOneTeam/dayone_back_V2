@@ -2,6 +2,7 @@ package dayone.dayone.booklog.entity;
 
 import dayone.dayone.booklog.entity.value.Comment;
 import dayone.dayone.booklog.entity.value.Passage;
+import dayone.dayone.global.entity.BaseEntity;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class BookLog {
+public class BookLog extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
