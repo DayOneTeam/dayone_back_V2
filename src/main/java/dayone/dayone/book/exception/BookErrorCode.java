@@ -10,7 +10,8 @@ public enum BookErrorCode implements ErrorCode {
     AUTHOR_BLACK_AND_NULL(HttpStatus.BAD_REQUEST, 1003, "책 작가명은 null 이어거나 빈 값일 수 없습니다"),
     AUTHOR_LENGTH_OVER(HttpStatus.BAD_REQUEST, 1004, "책 작가명은 100자를 넘길 수 없습니다."),
     PUBLISHER_BLANK_AND_NULL(HttpStatus.BAD_REQUEST, 1005, "책 출판사명은 null 이어거나 빈 값일 수 없습니다."),
-    PUBLISHER_LENGTH_OVER(HttpStatus.BAD_REQUEST, 1006, "책 출판사명은 100자를 넘길 수 없습니다.");
+    PUBLISHER_LENGTH_OVER(HttpStatus.BAD_REQUEST, 1006, "책 출판사명은 100자를 넘길 수 없습니다."),
+    BOOK_NOT_EXIST(HttpStatus.BAD_REQUEST, 1007, "존재하지 않는 책입니다.");
 
     private final HttpStatus httpStatus;
     private final int code;

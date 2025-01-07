@@ -28,4 +28,11 @@ public class Book extends BaseEntity {
     private Publisher publisher;
 
     private String thumbnail;
+
+    public Book(final Title title, final Author author, final Publisher publisher, final String thumbnail) {
+        this.title = title;
+        this.author = author;
+        this.publisher = publisher;
+        this.thumbnail = thumbnail;
+    }
 }
