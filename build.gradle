@@ -57,10 +57,15 @@ asciidoctor {
 }
 
 asciidoctor.doFirst {  // asciidoctor Task가 수행될 때 가장 먼저 수행
-    delete file('build/resources/main/static/docs')
+    delete file('src/main/resources/static/docs')
 }
 
-task copyDocument(type: Copy) {  // 생성된 html 파일을 옮긴다
-    from file("build/docs/asciidoc")
+task copyDocument(type: Copy) {
+    dependsOn asciidoctor
+    from file("${asciidoctor.outputDir}")
     into file("src/main/resources/static/docs")
+}
+
+bootJar {
+    dependsOn copyDocument
 }
