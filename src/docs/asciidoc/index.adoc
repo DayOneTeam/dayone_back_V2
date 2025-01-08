@@ -1,0 +1,15 @@
+= Dayone API Docs
+:doctype: book
+:source-highlighter: highlightjs
+:sectlinks:
+:toc: left
+:toclevels: 3
+
+== 설명
+```
+책에 대한 기록을 남기는 서비스 Dayone API 문서입니다.
+잘못된 부분이 있으면 개발자에게 문의해주세요.
+```
+
+== API Docs Link
+link:book-log.html[Book Log Api 문서]

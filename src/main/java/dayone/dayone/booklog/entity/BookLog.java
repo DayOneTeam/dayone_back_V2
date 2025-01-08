@@ -1,5 +1,6 @@
 package dayone.dayone.booklog.entity;
 
+import dayone.dayone.book.entity.Book;
 import dayone.dayone.booklog.entity.value.Comment;
 import dayone.dayone.booklog.entity.value.Passage;
 import dayone.dayone.global.entity.BaseEntity;
@@ -34,4 +35,26 @@ public class BookLog extends BaseEntity {
     private Long userId;
 
     private int likeCount;
+
+    // TODO : 추후에 user 객체도 고려하기
+    public BookLog(final Long id, final Passage passage, final Comment comment, final Long bookId) {
+        this.id = id;
+        this.passage = passage;
+        this.comment = comment;
+        this.bookId = bookId;
+        this.userId = 1L;
+        this.likeCount = 0;
+    }
+
+    public static BookLog forSave(final String passage, final String comment, final Book book) {
+        return new BookLog(null, new Passage(passage), new Comment(comment), book.getId());
+    }
+
+    public String getPassage() {
+        return this.passage.getValue();
+    }
+
+    public String getComment() {
+        return this.comment.getValue();
+    }
 }
