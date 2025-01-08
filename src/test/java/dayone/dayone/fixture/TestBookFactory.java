@@ -15,7 +15,7 @@ public class TestBookFactory {
     private BookRepository bookRepository;
 
     public Book createBook(String title, String author, String publisher) {
-        final Book book = new Book(new Title(title), new Author(author), new Publisher(publisher), "이미지");
+        final Book book = new Book(null, new Title(title), new Author(author), new Publisher(publisher), "이미지", "1abdcs3csd");
         return bookRepository.save(book);
     }
 }
