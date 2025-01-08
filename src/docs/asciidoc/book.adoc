@@ -18,3 +18,11 @@ include::{snippets}/book-search/response-fields.adoc[]
 include::{snippets}/book-search/http-response.adoc[]
 
 
+== Book Create Api
+
+=== Request
+include::{snippets}/book-create/request-fields.adoc[]
+include::{snippets}/book-create/http-request.adoc[]
+
+=== Response
+include::{snippets}/book-create/http-response.adoc[]
