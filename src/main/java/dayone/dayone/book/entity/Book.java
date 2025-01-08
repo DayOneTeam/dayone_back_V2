@@ -29,10 +29,30 @@ public class Book extends BaseEntity {
 
     private String thumbnail;
 
-    public Book(final Title title, final Author author, final Publisher publisher, final String thumbnail) {
+    private String isbn;
+
+    public Book(final Long id, final Title title, final Author author, final Publisher publisher, final String thumbnail, final String isbn) {
+        this.id = id;
         this.title = title;
         this.author = author;
         this.publisher = publisher;
         this.thumbnail = thumbnail;
+        this.isbn = isbn;
+    }
+
+    public static Book forSave(final String title, final String author, final String publisher, final String thumbnail, final String isbn) {
+        return new Book(null, new Title(title), new Author(author), new Publisher(publisher), thumbnail, isbn);
+    }
+
+    public String getTitle() {
+        return title.getValue();
+    }
+
+    public String getAuthor() {
+        return author.getValue();
+    }
+
+    public String getPublisher() {
+        return publisher.getValue();
     }
 }
