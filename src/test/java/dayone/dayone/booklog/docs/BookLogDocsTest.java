@@ -2,12 +2,10 @@ package dayone.dayone.booklog.docs;
 
 import dayone.dayone.book.exception.BookErrorCode;
 import dayone.dayone.book.exception.BookException;
-import dayone.dayone.booklog.service.BookLogService;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.support.DocsTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -25,9 +23,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class BookLogDocsTest extends DocsTest {
-
-    @MockBean
-    private BookLogService bookLogService;
 
     @DisplayName("bookLog를 생성한다.")
     @Test
