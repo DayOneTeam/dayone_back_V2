@@ -9,7 +9,9 @@ public record BookLogResponse(
     long id,
     String passage,
     String comment,
+    @JsonProperty("like_count")
     int likeCnt,
+    @JsonProperty("book_title")
     String bookTitle,
     @JsonProperty("created_at")
     LocalDateTime createdAt

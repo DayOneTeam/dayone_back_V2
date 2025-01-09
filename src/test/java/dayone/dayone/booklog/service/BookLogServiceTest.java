@@ -7,18 +7,26 @@ import dayone.dayone.book.exception.BookException;
 import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.booklog.entity.repository.BookLogRepository;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
+import dayone.dayone.booklog.service.dto.BookLogListResponse;
 import dayone.dayone.fixture.TestBookFactory;
-import org.junit.jupiter.api.AfterEach;
+import dayone.dayone.fixture.TestBookLogFactory;
+import dayone.dayone.support.ServiceTest;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-@SpringBootTest
-class BookLogServiceTest {
+class BookLogServiceTest extends ServiceTest {
 
     @Autowired
     private BookLogService bookLogService;
@@ -32,11 +40,9 @@ class BookLogServiceTest {
     @Autowired
     private TestBookFactory testBookFactory;
 
-    @AfterEach
-    void delete() {
-        bookRepository.deleteAll();
-        bookLogRepository.deleteAll();
-    }
+    @Autowired
+    private TestBookLogFactory testBookLogFactory;
+
 
     @DisplayName("bookLog 작성시 bookLog가 저장된다.")
     @Test
@@ -67,5 +73,38 @@ class BookLogServiceTest {
         assertThatThrownBy(() -> bookLogService.create(request))
             .isInstanceOf(BookException.class)
             .hasMessage(BookErrorCode.BOOK_NOT_EXIST.getMessage());
+    }
+
+    @DisplayName("BookLog를 cursor기반으로 10개씩 조회한다.")
+    @MethodSource("cursorAndExpect")
+    @ParameterizedTest
+    void readBookLogsByCursor(long cursor, int expectSize, int firstId, int lastId, long nextCursor, boolean next) {
+        // given
+        final Book book = testBookFactory.createBook("책", "작가", "출판사");
+        final List<BookLog> bookLogs = testBookLogFactory.createNBookLog(20, book);
+
+        // when
+        final BookLogListResponse response = bookLogService.getAllBookLogs(cursor);
+
+        // then
+        int startIndex = 0;
+        int lastIndex = response.bookLogs().size() - 1;
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(response.bookLogs()).hasSize(expectSize);
+            softly.assertThat(response.bookLogs().get(startIndex).id()).isEqualTo(firstId);
+            softly.assertThat(response.bookLogs().get(lastIndex).id()).isEqualTo(lastId);
+            softly.assertThat(response.nextCursor()).isEqualTo(nextCursor);
+            softly.assertThat(response.next()).isEqualTo(next);
+        });
+    }
+
+    private static Stream<Arguments> cursorAndExpect() {
+        return Stream.of(
+            // 커서, 응답 개수, 응답 레코드의 첫 id, 응답 레코드의 마지막 id, 다음 커서, 다음 데이터 존재 여부
+            arguments(11, 10, 10, 1, -1, false),
+            arguments(9, 8, 8, 1, -1, false),
+            arguments(12, 10, 11, 2, 2, true),
+            arguments(21, 10, 20, 11, 11, true)
+        );
     }
 }
