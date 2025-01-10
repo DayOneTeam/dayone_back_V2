@@ -1,12 +1,12 @@
 package dayone.dayone.booklog.service;
 
 import dayone.dayone.book.entity.Book;
-import dayone.dayone.book.entity.repository.BookRepository;
 import dayone.dayone.book.exception.BookErrorCode;
 import dayone.dayone.book.exception.BookException;
 import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.booklog.entity.repository.BookLogRepository;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
+import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogListResponse;
 import dayone.dayone.fixture.TestBookFactory;
 import dayone.dayone.fixture.TestBookLogFactory;
@@ -33,9 +33,6 @@ class BookLogServiceTest extends ServiceTest {
 
     @Autowired
     private BookLogRepository bookLogRepository;
-
-    @Autowired
-    private BookRepository bookRepository;
 
     @Autowired
     private TestBookFactory testBookFactory;
@@ -106,5 +103,30 @@ class BookLogServiceTest extends ServiceTest {
             arguments(12, 10, 11, 2, 2, true),
             arguments(21, 10, 20, 11, 11, true)
         );
+    }
+
+    @DisplayName("특정 bookLog의 상세 정보를 조회한다.")
+    @Test
+    void readBookLogDetail() {
+        // given
+        final Book book = testBookFactory.createBook("책", "작가", "출판사");
+        final BookLog bookLog = BookLog.forSave("의미있는 구절", "내가 느낀 감정", book);
+        bookLogRepository.save(bookLog);
+
+        long requestId = bookLog.getId();
+
+        // when
+        final BookLogDetailResponse response = bookLogService.getBookLogById(requestId);
+
+        // then
+        SoftAssertions.assertSoftly(softAssertions -> {
+            softAssertions.assertThat(response.id()).isEqualTo(bookLog.getId());
+            softAssertions.assertThat(response.passage()).isEqualTo(bookLog.getPassage());
+            softAssertions.assertThat(response.comment()).isEqualTo(bookLog.getComment());
+            softAssertions.assertThat(response.likeCnt()).isEqualTo(bookLog.getLikeCount());
+            softAssertions.assertThat(response.bookTitle()).isEqualTo(book.getTitle());
+            softAssertions.assertThat(response.bookCover()).isEqualTo(book.getThumbnail());
+            softAssertions.assertThat(response.createdAt()).isEqualTo(bookLog.getCreatedAt());
+        });
     }
 }

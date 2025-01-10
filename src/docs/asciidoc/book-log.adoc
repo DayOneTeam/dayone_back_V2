@@ -29,3 +29,13 @@ include::{snippets}/book-log-read-success/http-request.adoc[]
 === Response
 include::{snippets}/book-log-read-success/response-fields.adoc[]
 include::{snippets}/book-log-read-success/http-response.adoc[]
+
+== Book Log Detail Read
+
+=== Request
+include::{snippets}/read-book-log-detail/path-parameters.adoc[]
+include::{snippets}/read-book-log-detail/http-request.adoc[]
+
+=== Response
+include::{snippets}/read-book-log-detail/response-fields.adoc[]
+include::{snippets}/read-book-log-detail/http-response.adoc[]

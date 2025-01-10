@@ -6,7 +6,10 @@ import dayone.dayone.book.exception.BookErrorCode;
 import dayone.dayone.book.exception.BookException;
 import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.booklog.entity.repository.BookLogRepository;
+import dayone.dayone.booklog.exception.BookLogErrorCode;
+import dayone.dayone.booklog.exception.BookLogException;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
+import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -46,5 +49,11 @@ public class BookLogService {
 
         final Slice<BookLog> bookLogs = bookLogRepository.findAllByIdLessThanOrderByCreatedAtDesc(cursor, pageable);
         return BookLogListResponse.of(bookLogs, bookLogs.hasNext());
+    }
+
+    public BookLogDetailResponse getBookLogById(final Long bookLogId) {
+        final BookLog bookLog = bookLogRepository.findById(bookLogId)
+            .orElseThrow(() -> new BookLogException(BookLogErrorCode.NOT_EXIST_BOOK_LOG));
+        return BookLogDetailResponse.of(bookLog);
     }
 }
