@@ -3,6 +3,7 @@ package dayone.dayone.booklog.docs;
 import dayone.dayone.book.exception.BookErrorCode;
 import dayone.dayone.book.exception.BookException;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
+import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogListResponse;
 import dayone.dayone.booklog.service.dto.BookLogResponse;
 import dayone.dayone.support.DocsTest;
@@ -28,6 +29,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -129,5 +131,45 @@ public class BookLogDocsTest extends DocsTest {
                     fieldWithPath("data.next_cursor").type(JsonFieldType.NUMBER).description("다음 데이터 커서")
                 )
             ));
+    }
+
+    @DisplayName("BookLog를 상세 조회한다.")
+    @Test
+    void readBookLogDetail() throws Exception {
+        // given
+        final BookLogDetailResponse response = new BookLogDetailResponse(1L,
+            "의미 있는 구절",
+            "책에 대한 나의 생각",
+            0,
+            "책 제목",
+            "책 표지",
+            LocalDateTime.now());
+        given(bookLogService.getBookLogById(anyLong()))
+            .willReturn(response);
+
+        // when
+        final ResultActions result = mockMvc.perform(get("/api/v1/book-logs/{book_log_id}", 1L));
+
+        // then
+        result.andExpect(status().isOk())
+            .andDo(document("read-book-log-detail",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                pathParameters(
+                    parameterWithName("book_log_id").description("조회할 책 로그의 id")
+                ),
+                responseFields(
+                    fieldWithPath("code").description("성공 코드 ex) 1"),
+                    fieldWithPath("message").description("성공 메시지 ex) 조회된 책 로그 정보"),
+                    fieldWithPath("data.id").description("조회된 책 로그 id"),
+                    fieldWithPath("data.passage").description("의미 있는 구절"),
+                    fieldWithPath("data.comment").description("책에 대한 나의 생각"),
+                    fieldWithPath("data.book_title").description("책 제목"),
+                    fieldWithPath("data.book_cover").description("책 표지"),
+                    fieldWithPath("data.like_count").description("책 로그의 좋아요 수"),
+                    fieldWithPath("data.created_at").description("책 로그 생성 시간")
+                )
+            ));
+
     }
 }
