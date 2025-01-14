@@ -1,0 +1,15 @@
+= Book Log Like Api 문서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 3
+
+== Book Log Like Create
+
+=== Request
+include::{snippets}/book-log-like-create-success/path-parameters.adoc[]
+include::{snippets}/book-log-like-create-success/http-request.adoc[]
+
+=== Response
+include::{snippets}/book-log-like-create-success/http-response.adoc[]
