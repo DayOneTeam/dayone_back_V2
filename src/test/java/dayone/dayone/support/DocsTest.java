@@ -3,6 +3,7 @@ package dayone.dayone.support;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dayone.dayone.book.service.BookService;
 import dayone.dayone.booklog.service.BookLogService;
+import dayone.dayone.bookloglike.service.BookLogLikeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,6 +21,9 @@ public class DocsTest {
 
     @MockBean
     public BookLogService bookLogService;
+
+    @MockBean
+    public BookLogLikeService bookLogLikeService;
 
     @Autowired
     public MockMvc mockMvc;

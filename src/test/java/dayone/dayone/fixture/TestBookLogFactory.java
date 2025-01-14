@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class TestBookLogFactory {
+public class  TestBookLogFactory {
 
     @Autowired
     private BookLogRepository bookLogRepository;
@@ -23,5 +23,11 @@ public class TestBookLogFactory {
             bookLogs.add(bookLog);
         }
         return bookLogs;
+    }
+
+    public BookLog createBookLog(final Book book) {
+        BookLog bookLog = BookLog.forSave("의미있는 구절", "내가 느낀 감정", book);
+        bookLogRepository.save(bookLog);
+        return bookLog;
     }
 }
