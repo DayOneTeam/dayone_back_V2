@@ -13,3 +13,12 @@ include::{snippets}/book-log-like-create-success/http-request.adoc[]
 
 === Response
 include::{snippets}/book-log-like-create-success/http-response.adoc[]
+
+== Book Log Like Delete
+
+=== Request
+include::{snippets}/book-log-like-delete-success/path-parameters.adoc[]
+include::{snippets}/book-log-like-delete-success/http-request.adoc[]
+
+=== Response
+include::{snippets}/book-log-like-delete-success/http-response.adoc[]
