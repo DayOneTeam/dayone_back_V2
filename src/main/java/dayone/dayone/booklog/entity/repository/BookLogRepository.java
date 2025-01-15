@@ -17,4 +17,8 @@ public interface BookLogRepository extends JpaRepository<BookLog, Long> {
     @Query("update BookLog bl set bl.likeCount = bl.likeCount +1 where bl.id = :id")
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     void plusLike(@Param("id") final Long bookLogId);
+
+    @Query("update BookLog bl set bl.likeCount = bl.likeCount -1 where bl.id = :id")
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    void minusLike(@Param("id") final Long bookLogId);
 }

@@ -1,5 +1,6 @@
 package dayone.dayone.bookloglike.entity.repository;
 
+import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.bookloglike.entity.BookLogLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +12,6 @@ public interface BookLogLikeRepository extends JpaRepository<BookLogLike, Long> 
     Optional<BookLogLike> findAllByUserIdAndBookLogId(final Long userId, final Long bookLogId);
 
     List<BookLogLike> findAllByBookLogId(final Long bookLogId);
+
+    List<BookLogLike> findAllByBookLogId(final BookLog bookLogId);
 }
