@@ -8,6 +8,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -35,6 +36,26 @@ public class BookLogLikeDocsTest extends DocsTest {
                 preprocessResponse(prettyPrint()),
                 pathParameters(
                     parameterWithName("book_log_id").description("좋아요를 추가할 bookLog의 id")
+                ))
+            );
+    }
+
+    @DisplayName("bookLog에 좋아요를 삭제한다.")
+    @Test
+    void deleteLikeOnBookLog() throws Exception {
+        // given
+        willDoNothing().given(bookLogLikeService).deleteLike(anyLong(), anyLong());
+
+        // when
+        final ResultActions result = mockMvc.perform(delete("/api/v1/book-logs/{book_log_id}/like", 1L, 1L));
+
+        // then
+        result.andExpect(status().isNoContent())
+            .andDo(document("book-log-like-delete-success",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                pathParameters(
+                    parameterWithName("book_log_id").description("좋아요를 삭제할 bookLog의 id")
                 ))
             );
     }
