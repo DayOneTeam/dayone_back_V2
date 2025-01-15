@@ -35,4 +35,16 @@ public class BookLogLikeService {
         bookLogLikeRepository.save(bookLogLike);
         bookLogRepository.plusLike(bookLogId);
     }
+
+    @Transactional
+    public void deleteLike(final Long bookLogId, final long userId) {
+        bookLogRepository.findById(bookLogId)
+            .orElseThrow(() -> new BookLogException(BookLogErrorCode.NOT_EXIST_BOOK_LOG));
+
+        final BookLogLike bookLogLike = bookLogLikeRepository.findAllByUserIdAndBookLogId(userId, bookLogId)
+            .orElseThrow(() -> new BookLogLikeException(BookLogLikeErrorCode.NOT_LIKE_BOOK_LOG));
+
+        bookLogLikeRepository.delete(bookLogLike);
+        bookLogRepository.minusLike(bookLogId);
+    }
 }

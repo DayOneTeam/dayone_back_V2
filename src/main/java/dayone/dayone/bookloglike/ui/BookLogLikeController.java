@@ -4,6 +4,7 @@ import dayone.dayone.bookloglike.service.BookLogLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,5 +22,12 @@ public class BookLogLikeController {
         // TODO : 유저 인증 처리 후 요청 유저의 id로 변경하기
         bookLogLikeService.addLike(bookLogId, 1L);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteLike(@PathVariable("bookLogId") final Long bookLogId) {
+        // TODO : 유저 인증 처리 후 요청 유저의 id로 변경하기
+        bookLogLikeService.deleteLike(bookLogId, 1L);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
