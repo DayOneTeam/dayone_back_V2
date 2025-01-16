@@ -5,7 +5,8 @@ import org.springframework.http.HttpStatus;
 
 public enum AuthErrorCode implements ErrorCode {
 
-    FAIL_LOGIN(HttpStatus.BAD_REQUEST, 4001, "이메일 혹은 비밀번호가 틀렸습니다.");
+    FAIL_LOGIN(HttpStatus.BAD_REQUEST, 4001, "이메일 혹은 비밀번호가 틀렸습니다."),
+    HAVE_NOT_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, 4002, "refresh 토큰이 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
