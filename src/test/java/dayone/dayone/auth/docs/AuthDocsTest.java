@@ -14,8 +14,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -64,4 +66,29 @@ public class AuthDocsTest extends DocsTest {
             ));
     }
 
+    @DisplayName("로그 아웃 시 refreshToken 쿠키를 삭제한다.")
+    @Test
+    void successLogout() throws Exception {
+        // given
+        final Cookie deletedCookie = new Cookie("refreshToken", null);
+        given(cookieProvider.deleteCookie(any(), any()))
+            .willReturn(deletedCookie);
+
+        // when
+        final ResultActions result = mockMvc.perform(delete("/api/v1/auth/logout")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"));
+
+        // then
+        result.andExpect(status().isNoContent())
+            .andDo(document("success-logout",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                requestHeaders(
+                    headerWithName(HttpHeaders.AUTHORIZATION).description("accessToken")
+                ),
+                responseHeaders(
+                    headerWithName(HttpHeaders.SET_COOKIE).description("유효기간이 0인 refreshToken 쿠키")
+                )
+            ));
+    }
 }
