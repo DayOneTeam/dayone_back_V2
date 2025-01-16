@@ -18,3 +18,15 @@ include::{snippets}/success-login/response-headers.adoc[]
 include::{snippets}/success-login/response-fields.adoc[]
 include::{snippets}/success-login/http-response.adoc[]
 
+== Logout Api
+
+=== Request
+==== Header
+include::{snippets}/success-logout/request-headers.adoc[]
+include::{snippets}/success-logout/http-request.adoc[]
+
+=== Response
+==== Header
+include::{snippets}/success-logout/response-headers.adoc[]
+==== BodyField
+include::{snippets}/success-logout/http-response.adoc[]
