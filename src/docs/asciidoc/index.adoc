@@ -12,6 +12,7 @@
 ```
 
 == API Docs Link
+- link:auth.html[Auth Api 문서]
 - link:book.html[Book Api 문서]
 - link:book-log.html[Book Log Api 문서]
 - link:book-log-like.html[Book Log Like Api 문서]
