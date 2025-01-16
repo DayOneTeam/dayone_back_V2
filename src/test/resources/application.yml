@@ -20,3 +20,8 @@ naver:
   book-search-url: http://api.com
   client-id: clientId
   client-secret: clientSecret
+
+jwt:
+  access-token-valid-time: 10000
+  refresh-token-valid-time: 100000
+  secret-code: json-web-token-secret-code-for-test
