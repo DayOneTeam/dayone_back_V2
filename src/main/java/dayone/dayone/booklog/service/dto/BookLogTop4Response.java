@@ -1,10 +1,12 @@
 package dayone.dayone.booklog.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dayone.dayone.booklog.entity.BookLog;
 
 import java.util.List;
 
 public record BookLogTop4Response(
+    @JsonProperty("book_logs")
     List<BookLogResponse> bookLogs
 ) {
 

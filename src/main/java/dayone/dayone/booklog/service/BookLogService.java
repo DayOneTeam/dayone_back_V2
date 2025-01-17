@@ -12,15 +12,14 @@ import dayone.dayone.booklog.exception.BookLogException;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
-import lombok.RequiredArgsConstructor;
 import dayone.dayone.booklog.service.dto.BookLogTop4Response;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -33,6 +32,7 @@ public class BookLogService {
 
     private final BookLogRepository bookLogRepository;
     private final BookRepository bookRepository;
+    private final DateFinder dateFinder;
 
     @Transactional
     public Long create(final BookLogCreateRequest request) {
@@ -64,8 +64,9 @@ public class BookLogService {
     }
 
     public BookLogTop4Response getTop4BookLogs(final LocalDateTime now) {
-        LocalDateTime monDay = now.with(DayOfWeek.MONDAY);
-        LocalDateTime sunDay = now.with(DayOfWeek.SUNDAY);
+        LocalDateTime monDay = dateFinder.getWeekStartDate(now);
+        LocalDateTime sunDay = dateFinder.getWeekEndDate(now);
+
         final List<BookLog> bookLogsWrittenThisWeek = bookLogRepository.findAllByCreatedAtBetween(monDay, sunDay);
 
         BookLogs bookLogs = new BookLogs(bookLogsWrittenThisWeek);
