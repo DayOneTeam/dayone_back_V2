@@ -4,8 +4,9 @@ import dayone.dayone.book.exception.BookErrorCode;
 import dayone.dayone.book.exception.BookException;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
-import dayone.dayone.booklog.service.dto.BookLogListResponse;
+import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogResponse;
+import dayone.dayone.booklog.service.dto.BookLogTop4Response;
 import dayone.dayone.support.DocsTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -103,7 +104,7 @@ public class BookLogDocsTest extends DocsTest {
         final List<BookLogResponse> response = List.of(new BookLogResponse(1L, "의미있는 구절", "내가 느낀 감정", 1, "책 제목", LocalDateTime.now()));
 
         given(bookLogService.getAllBookLogs(anyLong()))
-            .willReturn(new BookLogListResponse(response, false, -1L));
+            .willReturn(new BookLogPaginationListResponse(response, false, -1L));
 
         // when
         final ResultActions result = mockMvc.perform(get("/api/v1/book-logs")
@@ -171,5 +172,40 @@ public class BookLogDocsTest extends DocsTest {
                 )
             ));
 
+    }
+
+    @DisplayName("한 주내 가장 좋아요를 받은 bookLog 4개를 조회한다.")
+    @Test
+    void readMostLikedAndWrittenRecentlyBookLogsInWeek() throws Exception {
+        // given
+        final List<BookLogResponse> bookLogResponses = List.of(
+            new BookLogResponse(1L, "의미있는 구절", "내가 느낀 감정", 5, "책 제목", LocalDateTime.now()),
+            new BookLogResponse(3L, "의미있는 구절", "내가 느낀 감정", 4, "책 제목", LocalDateTime.now()),
+            new BookLogResponse(2L, "의미있는 구절", "내가 느낀 감정", 4, "책 제목", LocalDateTime.now()),
+            new BookLogResponse(4L, "의미있는 구절", "내가 느낀 감정", 2, "책 제목", LocalDateTime.now())
+        );
+
+        given(bookLogService.getTop4BookLogs(any()))
+            .willReturn(new BookLogTop4Response(bookLogResponses));
+
+        // when
+        final ResultActions result = mockMvc.perform(get("/api/v1/book-logs/top4"));
+
+        // then
+        result.andExpect(status().isOk())
+            .andDo(document("read-most-liked-and-written-recently-book-logs-in-week",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                responseFields(
+                    fieldWithPath("code").description("성공 코드 ex) 1"),
+                    fieldWithPath("message").description("성공 메시지 ex) 조회된 책 로그 정보"),
+                    fieldWithPath("data.book_logs[].id").type(JsonFieldType.NUMBER).description("책 id"),
+                    fieldWithPath("data.book_logs[].passage").type(JsonFieldType.STRING).description("구절"),
+                    fieldWithPath("data.book_logs[].comment").type(JsonFieldType.STRING).description("댓글"),
+                    fieldWithPath("data.book_logs[].book_title").type(JsonFieldType.STRING).description("책 제목"),
+                    fieldWithPath("data.book_logs[].like_count").type(JsonFieldType.NUMBER).description("책 로그 좋아요 수"),
+                    fieldWithPath("data.book_logs[].created_at").type(JsonFieldType.STRING).description("책 로그 생성 시간")
+                )
+            ));
     }
 }

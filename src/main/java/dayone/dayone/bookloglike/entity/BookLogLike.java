@@ -9,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
@@ -26,6 +28,8 @@ public class BookLogLike extends BaseEntity {
         this.id = id;
         this.userId = userId;
         this.bookLogId = bookLogId;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public static BookLogLike forSave(final Long userId, final Long bookLogId) {

@@ -9,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity(name = "Users")
@@ -32,6 +34,8 @@ public class User extends BaseEntity {
         this.password = password;
         this.name = name;
         this.profileImage = profileImage;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // TODO : 이미지는 추후에 처리하기

@@ -3,7 +3,8 @@ package dayone.dayone.booklog.ui;
 import dayone.dayone.booklog.service.BookLogService;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
-import dayone.dayone.booklog.service.dto.BookLogListResponse;
+import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
+import dayone.dayone.booklog.service.dto.BookLogTop4Response;
 import dayone.dayone.global.response.CommonResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/book-logs")
@@ -31,8 +33,8 @@ public class BookLogController {
     }
 
     @GetMapping
-    public CommonResponseDto<BookLogListResponse> getBookLogs(@RequestParam(value = "cursor", defaultValue = "-1") String cursor) {
-        final BookLogListResponse response = bookLogService.getAllBookLogs(Long.parseLong(cursor));
+    public CommonResponseDto<BookLogPaginationListResponse> getBookLogs(@RequestParam(value = "cursor", defaultValue = "-1") String cursor) {
+        final BookLogPaginationListResponse response = bookLogService.getAllBookLogs(Long.parseLong(cursor));
         return CommonResponseDto.forSuccess(1, "BookLog 조회 성공", response);
     }
 
@@ -40,5 +42,11 @@ public class BookLogController {
     public CommonResponseDto<BookLogDetailResponse> getBookLogById(@PathVariable("id") Long bookLogId) {
         final BookLogDetailResponse response = bookLogService.getBookLogById(bookLogId);
         return CommonResponseDto.forSuccess(1, "BookLog 상세 조회 성공", response);
+    }
+
+    @GetMapping("/top4")
+    public CommonResponseDto<BookLogTop4Response> getTop4BookLogs() {
+        final BookLogTop4Response response = bookLogService.getTop4BookLogs(LocalDateTime.now());
+        return CommonResponseDto.forSuccess(1, "Top4 BookLog 조회 성공", response);
     }
 }

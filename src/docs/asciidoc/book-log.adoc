@@ -39,3 +39,12 @@ include::{snippets}/read-book-log-detail/http-request.adoc[]
 === Response
 include::{snippets}/read-book-log-detail/response-fields.adoc[]
 include::{snippets}/read-book-log-detail/http-response.adoc[]
+
+== Top4(Best) Book Log Read
+
+=== Request
+include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week/http-request.adoc[]
+
+=== Response
+include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week/response-fields.adoc[]
+include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week/http-response.adoc[]

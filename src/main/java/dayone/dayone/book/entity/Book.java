@@ -12,6 +12,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
@@ -38,6 +40,8 @@ public class Book extends BaseEntity {
         this.publisher = publisher;
         this.thumbnail = thumbnail;
         this.isbn = isbn;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public static Book forSave(final String title, final String author, final String publisher, final String thumbnail, final String isbn) {
