@@ -1,7 +1,6 @@
 package dayone.dayone.auth.application;
 
 import dayone.dayone.auth.application.dto.LoginRequest;
-import dayone.dayone.auth.application.dto.LoginResponse;
 import dayone.dayone.auth.application.dto.TokenInfo;
 import dayone.dayone.auth.exception.AuthErrorCode;
 import dayone.dayone.auth.exception.AuthException;

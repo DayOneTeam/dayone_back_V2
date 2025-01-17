@@ -18,7 +18,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
