@@ -5,6 +5,7 @@ import dayone.dayone.book.entity.repository.BookRepository;
 import dayone.dayone.book.exception.BookErrorCode;
 import dayone.dayone.book.exception.BookException;
 import dayone.dayone.booklog.entity.BookLog;
+import dayone.dayone.booklog.entity.BookLogs;
 import dayone.dayone.booklog.entity.repository.BookLogRepository;
 import dayone.dayone.booklog.exception.BookLogErrorCode;
 import dayone.dayone.booklog.exception.BookLogException;
@@ -18,6 +19,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -56,5 +61,14 @@ public class BookLogService {
         final BookLog bookLog = bookLogRepository.findById(bookLogId)
             .orElseThrow(() -> new BookLogException(BookLogErrorCode.NOT_EXIST_BOOK_LOG));
         return BookLogDetailResponse.of(bookLog);
+    }
+
+    public BookLogTop4Response getTop4BookLogs(final LocalDateTime now) {
+        LocalDateTime monDay = now.with(DayOfWeek.MONDAY);
+        LocalDateTime sunDay = now.with(DayOfWeek.SUNDAY);
+        final List<BookLog> bookLogsWrittenThisWeek = bookLogRepository.findAllByCreatedAtBetween(monDay, sunDay);
+
+        BookLogs bookLogs = new BookLogs(bookLogsWrittenThisWeek);
+        return BookLogTop4Response.from(bookLogs.getMostLikedBookLogs());
     }
 }
