@@ -8,6 +8,8 @@ import dayone.dayone.booklog.entity.repository.BookLogRepository;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
+import dayone.dayone.booklog.service.dto.BookLogResponse;
+import dayone.dayone.booklog.service.dto.BookLogTop4Response;
 import dayone.dayone.fixture.TestBookFactory;
 import dayone.dayone.fixture.TestBookLogFactory;
 import dayone.dayone.support.ServiceTest;
@@ -19,6 +21,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -127,6 +130,30 @@ class BookLogServiceTest extends ServiceTest {
             softAssertions.assertThat(response.bookTitle()).isEqualTo(book.getTitle());
             softAssertions.assertThat(response.bookCover()).isEqualTo(book.getThumbnail());
             softAssertions.assertThat(response.createdAt()).isEqualTo(bookLog.getCreatedAt());
+        });
+    }
+
+    @DisplayName("한 주내 가장 좋아요를 받은 bookLog 4개를 조회한다.")
+    @Test
+    void getMostLikedAndWrittenRecentlyBookLogsInWeek() {
+        // given
+        final Book book = testBookFactory.createBook("책", "작가", "출판사");
+        final List<BookLog> bookLogWrittenThisWeek = testBookLogFactory.createBookLogWrittenThisWeek(10, book);
+        final List<BookLog> bookLogWrittenLastWeek = testBookLogFactory.createBookLogWrittenLastWeek(10, book);
+
+        // when
+        final BookLogTop4Response response = bookLogService.getTop4BookLogs(LocalDateTime.now());
+
+        // then
+        int topCount = 4;
+        final List<BookLogResponse> expect = bookLogWrittenThisWeek.subList(bookLogWrittenLastWeek.size() - topCount, bookLogWrittenLastWeek.size())
+            .stream()
+            .map(BookLogResponse::from)
+            .toList();
+
+        SoftAssertions.assertSoftly(softAssertions -> {
+            softAssertions.assertThat(response.bookLogs()).hasSize(4);
+            softAssertions.assertThat(response.bookLogs()).containsExactlyInAnyOrderElementsOf(expect);
         });
     }
 }
