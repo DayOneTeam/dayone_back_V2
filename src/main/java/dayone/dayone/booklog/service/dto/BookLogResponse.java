@@ -17,7 +17,7 @@ public record BookLogResponse(
     LocalDateTime createdAt
     // TODO 유저 정보 추가하기
 ) {
-    public static BookLogResponse of(final BookLog bookLog) {
+    public static BookLogResponse from(final BookLog bookLog) {
         return new BookLogResponse(bookLog.getId(),
             bookLog.getPassage(),
             bookLog.getComment(),

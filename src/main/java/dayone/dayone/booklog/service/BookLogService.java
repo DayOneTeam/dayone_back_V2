@@ -10,8 +10,9 @@ import dayone.dayone.booklog.exception.BookLogErrorCode;
 import dayone.dayone.booklog.exception.BookLogException;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
-import dayone.dayone.booklog.service.dto.BookLogListResponse;
+import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import lombok.RequiredArgsConstructor;
+import dayone.dayone.booklog.service.dto.BookLogTop4Response;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -38,17 +39,17 @@ public class BookLogService {
         return bookLog.getId();
     }
 
-    public BookLogListResponse getAllBookLogs(final Long cursor) {
+    public BookLogPaginationListResponse getAllBookLogs(final Long cursor) {
         Pageable pageable = PageRequest.of(0, BOOK_LOG_PAGE_SIZE);
 
         // 초기 요청인 경우
         if (cursor == -1L) {
             final Slice<BookLog> bookLogs = bookLogRepository.findAllByOrderByCreatedAtDesc(pageable);
-            return BookLogListResponse.of(bookLogs, bookLogs.hasNext());
+            return BookLogPaginationListResponse.of(bookLogs, bookLogs.hasNext());
         }
 
         final Slice<BookLog> bookLogs = bookLogRepository.findAllByIdLessThanOrderByCreatedAtDesc(cursor, pageable);
-        return BookLogListResponse.of(bookLogs, bookLogs.hasNext());
+        return BookLogPaginationListResponse.of(bookLogs, bookLogs.hasNext());
     }
 
     public BookLogDetailResponse getBookLogById(final Long bookLogId) {

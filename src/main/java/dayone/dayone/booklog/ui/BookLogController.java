@@ -3,7 +3,7 @@ package dayone.dayone.booklog.ui;
 import dayone.dayone.booklog.service.BookLogService;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
-import dayone.dayone.booklog.service.dto.BookLogListResponse;
+import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.global.response.CommonResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +31,8 @@ public class BookLogController {
     }
 
     @GetMapping
-    public CommonResponseDto<BookLogListResponse> getBookLogs(@RequestParam(value = "cursor", defaultValue = "-1") String cursor) {
-        final BookLogListResponse response = bookLogService.getAllBookLogs(Long.parseLong(cursor));
+    public CommonResponseDto<BookLogPaginationListResponse> getBookLogs(@RequestParam(value = "cursor", defaultValue = "-1") String cursor) {
+        final BookLogPaginationListResponse response = bookLogService.getAllBookLogs(Long.parseLong(cursor));
         return CommonResponseDto.forSuccess(1, "BookLog 조회 성공", response);
     }
 

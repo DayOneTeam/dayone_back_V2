@@ -7,7 +7,7 @@ import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.booklog.entity.repository.BookLogRepository;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
-import dayone.dayone.booklog.service.dto.BookLogListResponse;
+import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.fixture.TestBookFactory;
 import dayone.dayone.fixture.TestBookLogFactory;
 import dayone.dayone.support.ServiceTest;
@@ -81,7 +81,7 @@ class BookLogServiceTest extends ServiceTest {
         final List<BookLog> bookLogs = testBookLogFactory.createNBookLog(20, book);
 
         // when
-        final BookLogListResponse response = bookLogService.getAllBookLogs(cursor);
+        final BookLogPaginationListResponse response = bookLogService.getAllBookLogs(cursor);
 
         // then
         int startIndex = 0;

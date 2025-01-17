@@ -4,7 +4,7 @@ import dayone.dayone.book.exception.BookErrorCode;
 import dayone.dayone.book.exception.BookException;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
-import dayone.dayone.booklog.service.dto.BookLogListResponse;
+import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogResponse;
 import dayone.dayone.support.DocsTest;
 import org.junit.jupiter.api.DisplayName;
@@ -103,7 +103,7 @@ public class BookLogDocsTest extends DocsTest {
         final List<BookLogResponse> response = List.of(new BookLogResponse(1L, "의미있는 구절", "내가 느낀 감정", 1, "책 제목", LocalDateTime.now()));
 
         given(bookLogService.getAllBookLogs(anyLong()))
-            .willReturn(new BookLogListResponse(response, false, -1L));
+            .willReturn(new BookLogPaginationListResponse(response, false, -1L));
 
         // when
         final ResultActions result = mockMvc.perform(get("/api/v1/book-logs")
