@@ -10,7 +10,6 @@ public class CommonExceptionHandler {
 
     @ExceptionHandler(CommonException.class)
     public ResponseEntity<CommonResponseDto<ExceptionResponse>> handleException(final CommonException exception) {
-        return ResponseEntity.status(exception.getHttpStatus().value())
-            .body(ExceptionResponse.toResponse(exception));
+        return ExceptionResponse.toResponse(exception);
     }
 }

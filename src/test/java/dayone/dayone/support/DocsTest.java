@@ -2,7 +2,10 @@ package dayone.dayone.support;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dayone.dayone.auth.application.AuthService;
+import dayone.dayone.auth.exception.AuthErrorCode;
+import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.auth.ui.CookieProvider;
+import dayone.dayone.auth.ui.interceptor.AuthInterceptor;
 import dayone.dayone.book.service.BookService;
 import dayone.dayone.booklog.service.BookLogService;
 import dayone.dayone.bookloglike.service.BookLogLikeService;
@@ -12,6 +15,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @WebMvcTest
 @AutoConfigureMockMvc
@@ -33,9 +39,22 @@ public class DocsTest {
     @MockBean
     public AuthService authService;
 
+    @MockBean
+    public AuthInterceptor authInterceptor;
+
     @Autowired
     public MockMvc mockMvc;
 
     @Autowired
     public ObjectMapper objectMapper;
+
+    public void failAuth() throws Exception {
+        given(authInterceptor.preHandle(any(), any(), any()))
+            .willThrow(new AuthException(AuthErrorCode.NOT_LOGIN_USER));
+    }
+
+    public void successAuth() throws Exception {
+        given(authInterceptor.preHandle(any(), any(), any()))
+            .willReturn(true);
+    }
 }
