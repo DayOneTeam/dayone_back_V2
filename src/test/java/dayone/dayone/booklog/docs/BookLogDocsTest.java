@@ -43,6 +43,7 @@ public class BookLogDocsTest extends DocsTest {
         final BookLogCreateRequest request = new BookLogCreateRequest(1L, "의미있는 구절", "내가 느낀 감정");
         given(bookLogService.create(any(BookLogCreateRequest.class)))
             .willReturn(1L);
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(post("/api/v1/book-logs")
@@ -71,6 +72,7 @@ public class BookLogDocsTest extends DocsTest {
         final BookLogCreateRequest request = new BookLogCreateRequest(1L, "의미있는 구절", "내가 느낀 감정");
         given(bookLogService.create(any(BookLogCreateRequest.class)))
             .willThrow(new BookException(BookErrorCode.BOOK_NOT_EXIST));
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(post("/api/v1/book-logs")
@@ -105,6 +107,7 @@ public class BookLogDocsTest extends DocsTest {
 
         given(bookLogService.getAllBookLogs(anyLong()))
             .willReturn(new BookLogPaginationListResponse(response, false, -1L));
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(get("/api/v1/book-logs")
@@ -147,6 +150,7 @@ public class BookLogDocsTest extends DocsTest {
             LocalDateTime.now());
         given(bookLogService.getBookLogById(anyLong()))
             .willReturn(response);
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(get("/api/v1/book-logs/{book_log_id}", 1L));
@@ -187,6 +191,7 @@ public class BookLogDocsTest extends DocsTest {
 
         given(bookLogService.getTop4BookLogs(any()))
             .willReturn(new BookLogTop4Response(bookLogResponses));
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(get("/api/v1/book-logs/top4"));

@@ -40,6 +40,7 @@ public class BookDocsTest extends DocsTest {
                 "출판사",
                 "발행일",
                 "ISBN")));
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(get("/api/v1/books/search")
@@ -73,6 +74,7 @@ public class BookDocsTest extends DocsTest {
         final BookCreateRequest request = new BookCreateRequest("책 제목", "작가", "출판사", "이미지", "ISBN");
         given(bookService.create(any(BookCreateRequest.class)))
             .willReturn(1L);
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(post("/api/v1/books")

@@ -25,6 +25,7 @@ public class BookLogLikeDocsTest extends DocsTest {
     void addLikeOnBookLog() throws Exception {
         // given
         willDoNothing().given(bookLogLikeService).addLike(anyLong(), anyLong());
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(post("/api/v1/book-logs/{book_log_id}/like", 1L));
@@ -45,6 +46,7 @@ public class BookLogLikeDocsTest extends DocsTest {
     void deleteLikeOnBookLog() throws Exception {
         // given
         willDoNothing().given(bookLogLikeService).deleteLike(anyLong(), anyLong());
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(delete("/api/v1/book-logs/{book_log_id}/like", 1L, 1L));

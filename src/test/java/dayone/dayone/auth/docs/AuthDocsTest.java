@@ -29,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class AuthDocsTest extends DocsTest {
 
-
     @DisplayName("로그인 시 accessToken과 refreshToken을 반환한다.")
     @Test
     void successLogin() throws Exception {
@@ -73,6 +72,7 @@ public class AuthDocsTest extends DocsTest {
         final Cookie deletedCookie = new Cookie("refreshToken", null);
         given(cookieProvider.deleteCookie(any(), any()))
             .willReturn(deletedCookie);
+        successAuth();
 
         // when
         final ResultActions result = mockMvc.perform(delete("/api/v1/auth/logout")
