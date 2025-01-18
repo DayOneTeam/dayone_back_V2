@@ -8,21 +8,32 @@
 == Book Search Api
 
 === Request
+include::{snippets}/book-search/request-headers.adoc[]
 include::{snippets}/book-search/query-parameters.adoc[]
 include::{snippets}/book-search/http-request.adoc[]
 
 === Response
-include::{snippets}/book-search/response-fields.adoc[]
-
 ==== 정상적으로 book을 검색한 경우
+include::{snippets}/book-search/response-fields.adoc[]
 include::{snippets}/book-search/http-response.adoc[]
+
+==== 인증되지 않는 유저가 book을 검색할 경우
+include::{snippets}/fail-search-book/response-fields.adoc[]
+include::{snippets}/fail-search-book/http-response.adoc[]
 
 
 == Book Create Api
 
 === Request
+include::{snippets}/book-create/request-headers.adoc[]
 include::{snippets}/book-create/request-fields.adoc[]
 include::{snippets}/book-create/http-request.adoc[]
 
 === Response
+
+==== 정상적으로 book을 생성한 경우
 include::{snippets}/book-create/http-response.adoc[]
+
+==== 인증되지 않는 유저가 book을 생성할 경우
+include::{snippets}/fail-create-book/response-fields.adoc[]
+include::{snippets}/fail-create-book/http-response.adoc[]
