@@ -7,6 +7,9 @@ import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.auth.token.TokenProvider;
 import dayone.dayone.user.entity.User;
 import dayone.dayone.user.entity.repository.UserRepository;
+import dayone.dayone.user.exception.UserErrorCode;
+import dayone.dayone.user.exception.UserException;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,5 +30,14 @@ public class AuthService {
         final String refreshToken = tokenProvider.createRefreshToken(user.getId());
 
         return new TokenInfo(accessToken, refreshToken);
+    }
+
+    public Long validUserByAccessToken(final String accessToken) {
+        final Claims claims = tokenProvider.parseClaims(accessToken);
+        final Long userId = claims.get("memberId", Long.class);
+        userRepository.findById(userId).
+            orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER));
+
+        return userId;
     }
 }
