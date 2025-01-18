@@ -28,5 +28,8 @@ include::{snippets}/success-logout/http-request.adoc[]
 === Response
 ==== Header
 include::{snippets}/success-logout/response-headers.adoc[]
-==== BodyField
+==== 로그아웃을 성공적으로 처리한 경우
 include::{snippets}/success-logout/http-response.adoc[]
+==== 인증되지 않은 유저가 로그아웃을 시도한 경우
+include::{snippets}/fail-logout/response-fields.adoc[]
+include::{snippets}/fail-logout/http-response.adoc[]
