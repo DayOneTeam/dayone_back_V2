@@ -8,6 +8,7 @@
 == Book Log Create
 
 === Request
+include::{snippets}/book-log-create-success/request-headers.adoc[]
 include::{snippets}/book-log-create-success/request-fields.adoc[]
 include::{snippets}/book-log-create-success/http-request.adoc[]
 
@@ -16,35 +17,60 @@ include::{snippets}/book-log-create-success/http-request.adoc[]
 ==== 정상적으로 book log를 생성한 경우
 include::{snippets}/book-log-create-success/http-response.adoc[]
 
-==== 존재하지 않는 책에 book log를 생성한 경우
+==== 존재하지 않는 책에 book log를 생성할 경우
 include::{snippets}/book-log-create-fail/response-fields.adoc[]
 include::{snippets}/book-log-create-fail/http-response.adoc[]
+
+==== 인증되지 않은 유저가 book log 생성할 경우
+include::{snippets}/create-book-log-fail-with-unauthenticated-user/response-fields.adoc[]
+include::{snippets}/create-book-log-fail-with-unauthenticated-user/http-response.adoc[]
 
 == Book Log List Read
 
 === Request
+include::{snippets}/book-log-read-success/request-headers.adoc[]
 include::{snippets}/book-log-read-success/query-parameters.adoc[]
 include::{snippets}/book-log-read-success/http-request.adoc[]
 
 === Response
+
+==== 정상적으로 Book Log 목록을 조회한 경우
 include::{snippets}/book-log-read-success/response-fields.adoc[]
 include::{snippets}/book-log-read-success/http-response.adoc[]
+
+==== 인증되지 않은 유저가 Book Log 목록을 조회할 경우
+include::{snippets}/read-book-logs-by-cursor-fail-with-unauthorized-user/response-fields.adoc[]
+include::{snippets}/read-book-logs-by-cursor-fail-with-unauthorized-user/http-response.adoc[]
 
 == Book Log Detail Read
 
 === Request
+include::{snippets}/read-book-log-detail/request-headers.adoc[]
 include::{snippets}/read-book-log-detail/path-parameters.adoc[]
 include::{snippets}/read-book-log-detail/http-request.adoc[]
 
 === Response
+
+==== 정상적으로 Book Log 상세 정보를 조회한 경우
 include::{snippets}/read-book-log-detail/response-fields.adoc[]
 include::{snippets}/read-book-log-detail/http-response.adoc[]
+
+==== 인증되지 않은 유저가 Book Log 상세 정보를 조회할 경우
+include::{snippets}/read-book-log-detail-fail-with-unauthorized-user/response-fields.adoc[]
+include::{snippets}/read-book-log-detail-fail-with-unauthorized-user/http-response.adoc[]
 
 == Top4(Best) Book Log Read
 
 === Request
+include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week/request-headers.adoc[]
 include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week/http-request.adoc[]
 
 === Response
+
+==== 정상적으로 Top4(Best) Book Log 목록을 조회한 경우
 include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week/response-fields.adoc[]
 include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week/http-response.adoc[]
+
+==== 인증되지 않은 유저가 Top4(Best) Book Log 목록을 조회할 경우
+include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week-fail-with-unauthorized-user/response-fields.adoc[]
+include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week-fail-with-unauthorized-user/http-response.adoc[]
