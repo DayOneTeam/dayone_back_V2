@@ -48,7 +48,7 @@ public class BookLogDocsTest extends DocsTest {
         void createBookLog() throws Exception {
             // given
             final BookLogCreateRequest request = new BookLogCreateRequest(1L, "의미있는 구절", "내가 느낀 감정");
-            given(bookLogService.create(any(BookLogCreateRequest.class)))
+            given(bookLogService.create(anyLong(), any(BookLogCreateRequest.class)))
                 .willReturn(1L);
             successAuth();
 
@@ -81,9 +81,10 @@ public class BookLogDocsTest extends DocsTest {
         void createBookLogOnNotExistBook() throws Exception {
             // given
             final BookLogCreateRequest request = new BookLogCreateRequest(1L, "의미있는 구절", "내가 느낀 감정");
-            given(bookLogService.create(any(BookLogCreateRequest.class)))
-                .willThrow(new BookException(BookErrorCode.BOOK_NOT_EXIST));
             successAuth();
+
+            given(bookLogService.create(anyLong(), any(BookLogCreateRequest.class)))
+                .willThrow(new BookException(BookErrorCode.BOOK_NOT_EXIST));
 
             // when
             final ResultActions result = mockMvc.perform(post("/api/v1/book-logs")

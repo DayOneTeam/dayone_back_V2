@@ -5,6 +5,7 @@ import dayone.dayone.auth.application.AuthService;
 import dayone.dayone.auth.exception.AuthErrorCode;
 import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.auth.ui.CookieProvider;
+import dayone.dayone.auth.ui.interceptor.AuthContext;
 import dayone.dayone.auth.ui.interceptor.AuthInterceptor;
 import dayone.dayone.book.service.BookService;
 import dayone.dayone.booklog.service.BookLogService;
@@ -42,6 +43,9 @@ public class DocsTest {
     @MockBean
     public AuthInterceptor authInterceptor;
 
+    @MockBean
+    public AuthContext authContext;
+
     @Autowired
     public MockMvc mockMvc;
 
@@ -51,6 +55,7 @@ public class DocsTest {
     public void failAuth() throws Exception {
         given(authInterceptor.preHandle(any(), any(), any()))
             .willThrow(new AuthException(AuthErrorCode.NOT_LOGIN_USER));
+        given(authContext.getMemberId()).willReturn(1L);
     }
 
     public void successAuth() throws Exception {
