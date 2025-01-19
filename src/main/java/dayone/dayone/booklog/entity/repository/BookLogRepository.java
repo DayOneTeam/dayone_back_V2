@@ -26,5 +26,6 @@ public interface BookLogRepository extends JpaRepository<BookLog, Long> {
     void minusLike(@Param("id") final Long bookLogId);
 
     @Query("select bl from BookLog bl where bl.createdAt between :monDay and :sunDay")
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     List<BookLog> findAllByCreatedAtBetween(@Param("monDay") final LocalDateTime monDay, @Param("sunDay") final LocalDateTime sunDay);
 }

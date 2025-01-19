@@ -109,8 +109,8 @@ class BookLogLikeServiceTest extends ServiceTest {
         void addLikeOnBookLogWithManyUserSimultaneously() throws InterruptedException {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
-            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
+            final List<User> users = testUserFactory.createNUser(10, "test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, users.get(0));
 
             int threadCount = 10;
             final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
@@ -118,9 +118,9 @@ class BookLogLikeServiceTest extends ServiceTest {
 
             // when
             for (int i = 0; i < threadCount; i++) {
-                long j = i;
+                final User user = users.get(i);
                 executorService.submit(() -> {
-                    bookLogLikeService.addLike(bookLog.getId(), j);
+                    bookLogLikeService.addLike(bookLog.getId(), user.getId());
                     countDownLatch.countDown();
                 });
             }
@@ -199,23 +199,22 @@ class BookLogLikeServiceTest extends ServiceTest {
         void deleteLikeOnBookLogWithManyUserSimultaneously() throws InterruptedException {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
-            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
-            testBookLogLikeFactory.createNBookLogLike(10, bookLog.getId());
+            final List<User> users = testUserFactory.createNUser(10, "test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, users.get(0));
+            testBookLogLikeFactory.createNBookLogLike(bookLog.getId(), users);
 
             int threadCount = 10;
             final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
             final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
             // when
-            for (long i = 1; i <= threadCount; i++) {
-                long userId = i;
+            for (int i = 0; i < threadCount; i++) {
+                User user = users.get(i);
                 executorService.submit(() -> {
-                    bookLogLikeService.deleteLike(bookLog.getId(), userId);
+                    bookLogLikeService.deleteLike(bookLog.getId(), user.getId());
                     countDownLatch.countDown();
                 });
             }
-
             countDownLatch.await();
             // then
             final BookLog notLikedBookLog = bookLogRepository.findById(bookLog.getId()).get();
