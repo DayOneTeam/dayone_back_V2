@@ -4,6 +4,7 @@ import dayone.dayone.book.entity.Book;
 import dayone.dayone.booklog.entity.value.Comment;
 import dayone.dayone.booklog.entity.value.Passage;
 import dayone.dayone.global.entity.BaseEntity;
+import dayone.dayone.user.entity.User;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -34,41 +35,41 @@ public class BookLog extends BaseEntity {
     @Embedded
     private Comment comment;
 
-    // TODO: 추후에 BOOK 객체를 참조하는 것 고려하기
     @ManyToOne
     @JoinColumn(name = "book_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Book book;
 
-    // TODO : 추후에 USER 객체를 참조하는 것 고려하기
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private User user;
 
     private int likeCount;
 
     // TODO : 테스트 용 생성자 비즈니스 로직에 같이 있어도 괜찮을까?
-    public BookLog(final Long id, final Passage passage, final Comment comment, final Book book, final Long userId, final int likeCount, final LocalDateTime createdAt) {
+    public BookLog(final Long id, final Passage passage, final Comment comment, final Book book, final User user, final int likeCount, final LocalDateTime createdAt) {
         this.id = id;
         this.passage = passage;
         this.comment = comment;
         this.book = book;
-        this.userId = userId;
+        this.user = user;
         this.likeCount = likeCount;
         this.createdAt = createdAt;
     }
 
     // TODO : 추후에 user 객체도 고려하기
-    public BookLog(final Long id, final Passage passage, final Comment comment, final Book book) {
+    public BookLog(final Long id, final Passage passage, final Comment comment, final Book book, final User user) {
         this.id = id;
         this.passage = passage;
         this.comment = comment;
         this.book = book;
-        this.userId = 1L;
+        this.user = user;
         this.likeCount = 0;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static BookLog forSave(final String passage, final String comment, final Book book) {
-        return new BookLog(null, new Passage(passage), new Comment(comment), book);
+    public static BookLog forSave(final String passage, final String comment, final Book book, final User user) {
+        return new BookLog(null, new Passage(passage), new Comment(comment), book, user);
     }
 
     public String getPassage() {

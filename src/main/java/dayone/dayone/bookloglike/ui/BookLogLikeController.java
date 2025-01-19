@@ -1,5 +1,6 @@
 package dayone.dayone.bookloglike.ui;
 
+import dayone.dayone.auth.ui.argumentresolver.AuthUser;
 import dayone.dayone.bookloglike.service.BookLogLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,16 +19,14 @@ public class BookLogLikeController {
     private final BookLogLikeService bookLogLikeService;
 
     @PostMapping
-    public ResponseEntity<Void> addLike(@PathVariable("bookLogId") final Long bookLogId) {
-        // TODO : 유저 인증 처리 후 요청 유저의 id로 변경하기
-        bookLogLikeService.addLike(bookLogId, 1L);
+    public ResponseEntity<Void> addLike(@AuthUser final Long userId, @PathVariable("bookLogId") final Long bookLogId) {
+        bookLogLikeService.addLike(bookLogId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteLike(@PathVariable("bookLogId") final Long bookLogId) {
-        // TODO : 유저 인증 처리 후 요청 유저의 id로 변경하기
-        bookLogLikeService.deleteLike(bookLogId, 1L);
+    public ResponseEntity<Void> deleteLike(@AuthUser final Long userId, @PathVariable("bookLogId") final Long bookLogId) {
+        bookLogLikeService.deleteLike(bookLogId, userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

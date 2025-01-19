@@ -16,6 +16,7 @@ import java.util.Optional;
 public class AuthInterceptor implements HandlerInterceptor {
 
     private final AuthService authService;
+    private final AuthContext authContext;
 
     @Override
     public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) throws Exception {
@@ -24,7 +25,8 @@ public class AuthInterceptor implements HandlerInterceptor {
             throw new AuthException(AuthErrorCode.NOT_LOGIN_USER);
         }
 
-        authService.validUserByAccessToken(token.get());
+        final Long userId = authService.validUserByAccessToken(token.get());
+        authContext.setMemberId(userId);
         return true;
     }
 }

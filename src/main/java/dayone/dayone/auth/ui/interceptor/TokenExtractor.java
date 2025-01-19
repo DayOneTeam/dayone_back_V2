@@ -11,7 +11,7 @@ public class TokenExtractor {
     private static final int TOKEN_PREFIX_INDEX = 0;
     private static final int TOKEN_FORMAT_SIZE = 2;
     private static final int TOKEN_INDEX = 1;
-    private static final String TOKEN_PREFIX = "Bearer ";
+    private static final String TOKEN_PREFIX = "Bearer";
 
     public static Optional<String> extractToken(final HttpServletRequest request) {
         final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);

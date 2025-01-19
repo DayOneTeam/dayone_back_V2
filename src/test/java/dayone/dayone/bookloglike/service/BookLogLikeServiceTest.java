@@ -12,7 +12,9 @@ import dayone.dayone.bookloglike.exception.BookLogLikeException;
 import dayone.dayone.fixture.TestBookFactory;
 import dayone.dayone.fixture.TestBookLogFactory;
 import dayone.dayone.fixture.TestBookLogLikeFactory;
+import dayone.dayone.fixture.TestUserFactory;
 import dayone.dayone.support.ServiceTest;
+import dayone.dayone.user.entity.User;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +37,9 @@ class BookLogLikeServiceTest extends ServiceTest {
     private TestBookLogFactory testBookLogFactory;
 
     @Autowired
+    private TestUserFactory testUserFactory;
+
+    @Autowired
     private TestBookLogLikeFactory testBookLogLikeFactory;
 
     @Autowired
@@ -55,7 +60,8 @@ class BookLogLikeServiceTest extends ServiceTest {
         void addLikeOnBookLog() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final BookLog bookLog = testBookLogFactory.createBookLog(book);
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
 
             // when
             bookLogLikeService.addLike(bookLog.getId(), 1L);
@@ -87,7 +93,8 @@ class BookLogLikeServiceTest extends ServiceTest {
         void addLikeOnBookLogThatIsAlreadyLiked() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final BookLog bookLog = testBookLogFactory.createBookLog(book);
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
             bookLogLikeService.addLike(bookLog.getId(), 1L);
 
             // when
@@ -102,7 +109,8 @@ class BookLogLikeServiceTest extends ServiceTest {
         void addLikeOnBookLogWithManyUserSimultaneously() throws InterruptedException {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final BookLog bookLog = testBookLogFactory.createBookLog(book);
+            final List<User> users = testUserFactory.createNUser(10, "test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, users.get(0));
 
             int threadCount = 10;
             final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
@@ -110,9 +118,9 @@ class BookLogLikeServiceTest extends ServiceTest {
 
             // when
             for (int i = 0; i < threadCount; i++) {
-                long j = i;
+                final User user = users.get(i);
                 executorService.submit(() -> {
-                    bookLogLikeService.addLike(bookLog.getId(), j);
+                    bookLogLikeService.addLike(bookLog.getId(), user.getId());
                     countDownLatch.countDown();
                 });
             }
@@ -137,8 +145,9 @@ class BookLogLikeServiceTest extends ServiceTest {
         void deleteLikeOnBookLog() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final BookLog bookLog = testBookLogFactory.createBookLog(book);
-            final Long userId = 1L;
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
+            final long userId = 1L;
             bookLogLikeService.addLike(bookLog.getId(), userId);
 
             // when
@@ -159,8 +168,8 @@ class BookLogLikeServiceTest extends ServiceTest {
         @Test
         void deleteLikeOnNotExistBookLog() {
             // given
-            final Long notExistBookLogId = 99999L;
-            final Long userId = 1L;
+            final long notExistBookLogId = 99999L;
+            final long userId = 1L;
 
             // when
             // then
@@ -174,8 +183,9 @@ class BookLogLikeServiceTest extends ServiceTest {
         void deleteLikeOnBookLogThatIsNotLiked() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final BookLog bookLog = testBookLogFactory.createBookLog(book);
-            final Long userId = 1L;
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
+            final long userId = 1L;
 
             // when
             // then
@@ -189,22 +199,22 @@ class BookLogLikeServiceTest extends ServiceTest {
         void deleteLikeOnBookLogWithManyUserSimultaneously() throws InterruptedException {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final BookLog bookLog = testBookLogFactory.createBookLog(book);
-            testBookLogLikeFactory.createNBookLogLike(10, bookLog.getId());
+            final List<User> users = testUserFactory.createNUser(10, "test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, users.get(0));
+            testBookLogLikeFactory.createNBookLogLike(bookLog.getId(), users);
 
             int threadCount = 10;
             final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
             final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
             // when
-            for (long i = 1; i <= threadCount; i++) {
-                long userId = i;
+            for (int i = 0; i < threadCount; i++) {
+                User user = users.get(i);
                 executorService.submit(() -> {
-                    bookLogLikeService.deleteLike(bookLog.getId(), userId);
+                    bookLogLikeService.deleteLike(bookLog.getId(), user.getId());
                     countDownLatch.countDown();
                 });
             }
-
             countDownLatch.await();
             // then
             final BookLog notLikedBookLog = bookLogRepository.findById(bookLog.getId()).get();

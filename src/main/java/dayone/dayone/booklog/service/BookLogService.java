@@ -13,6 +13,10 @@ import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogTop4Response;
+import dayone.dayone.user.entity.User;
+import dayone.dayone.user.entity.repository.UserRepository;
+import dayone.dayone.user.exception.UserErrorCode;
+import dayone.dayone.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,14 +36,18 @@ public class BookLogService {
 
     private final BookLogRepository bookLogRepository;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
     private final DateFinder dateFinder;
 
     @Transactional
-    public Long create(final BookLogCreateRequest request) {
+    public Long create(final Long userId, final BookLogCreateRequest request) {
+        final User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER));
+
         final Book book = bookRepository.findById(request.bookId())
             .orElseThrow(() -> new BookException(BookErrorCode.BOOK_NOT_EXIST));
 
-        final BookLog bookLog = BookLog.forSave(request.passage(), request.comment(), book);
+        final BookLog bookLog = BookLog.forSave(request.passage(), request.comment(), book, user);
         bookLogRepository.save(bookLog);
         return bookLog.getId();
     }

@@ -15,11 +15,11 @@ class BookLogsTest {
     @Test
     void getMostLikedBookLogs() {
         // given
-        final BookLog bookLogWithFiveLike = new BookLog(1L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 5, LocalDateTime.now());
-        final BookLog bookLogWithFourLike = new BookLog(2L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 4, LocalDateTime.now());
-        final BookLog bookLogWithThreeLike = new BookLog(3L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 3, LocalDateTime.now());
-        final BookLog bookLogWithOneLike = new BookLog(4L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 1, LocalDateTime.now());
-        final BookLog bookLogWithZeroLike = new BookLog(5L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 0, LocalDateTime.now());
+        final BookLog bookLogWithFiveLike = new BookLog(1L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 5, LocalDateTime.now());
+        final BookLog bookLogWithFourLike = new BookLog(2L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 4, LocalDateTime.now());
+        final BookLog bookLogWithThreeLike = new BookLog(3L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 3, LocalDateTime.now());
+        final BookLog bookLogWithOneLike = new BookLog(4L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 1, LocalDateTime.now());
+        final BookLog bookLogWithZeroLike = new BookLog(5L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 0, LocalDateTime.now());
 
         final BookLogs bookLogs = new BookLogs(List.of(bookLogWithFiveLike, bookLogWithFourLike, bookLogWithThreeLike, bookLogWithOneLike, bookLogWithZeroLike));
 
@@ -36,11 +36,11 @@ class BookLogsTest {
     @Test
     void getMostLikedAndWrittenRecentlyBookLogs() {
         // given
-        final BookLog bookLogWithFiveLikeCreatedAtFirst = new BookLog(1L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 5, LocalDateTime.now());
-        final BookLog bookLogWithFiveLikeCreatedAtSecond = new BookLog(2L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 5, LocalDateTime.now());
-        final BookLog bookLogWithFiveLikeCreatedAtThird = new BookLog(3L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 5, LocalDateTime.now());
-        final BookLog bookLogWithFiveLikeCreatedAtFourth = new BookLog(4L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 5, LocalDateTime.now());
-        final BookLog bookLogWithFiveLikeCreatedAtFifth = new BookLog(5L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 5, LocalDateTime.now());
+        final BookLog bookLogWithFiveLikeCreatedAtFirst = new BookLog(1L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 5, LocalDateTime.now());
+        final BookLog bookLogWithFiveLikeCreatedAtSecond = new BookLog(2L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 5, LocalDateTime.now());
+        final BookLog bookLogWithFiveLikeCreatedAtThird = new BookLog(3L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 5, LocalDateTime.now());
+        final BookLog bookLogWithFiveLikeCreatedAtFourth = new BookLog(4L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 5, LocalDateTime.now());
+        final BookLog bookLogWithFiveLikeCreatedAtFifth = new BookLog(5L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 5, LocalDateTime.now());
 
         final BookLogs bookLogs = new BookLogs(List.of(bookLogWithFiveLikeCreatedAtFirst, bookLogWithFiveLikeCreatedAtSecond, bookLogWithFiveLikeCreatedAtThird, bookLogWithFiveLikeCreatedAtFourth, bookLogWithFiveLikeCreatedAtFifth));
 
@@ -57,8 +57,8 @@ class BookLogsTest {
     @Test
     void getMostLikedAndWrittenRecentlyBookLogsWithLessThanTopDisplayCount() {
         // given
-        final BookLog bookLogWithFiveLike = new BookLog(1L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 5, LocalDateTime.now());
-        final BookLog bookLogWithOneLike = new BookLog(1L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, 1L, 1, LocalDateTime.now());
+        final BookLog bookLogWithFiveLike = new BookLog(1L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 5, LocalDateTime.now());
+        final BookLog bookLogWithOneLike = new BookLog(2L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 1, LocalDateTime.now());
 
         final BookLogs bookLogs = new BookLogs(List.of(bookLogWithFiveLike, bookLogWithOneLike));
 

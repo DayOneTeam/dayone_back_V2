@@ -7,6 +7,8 @@ import dayone.dayone.booklog.entity.value.Comment;
 import dayone.dayone.booklog.entity.value.Passage;
 import dayone.dayone.support.DateConstant;
 import dayone.dayone.support.RepositoryTest;
+import dayone.dayone.user.entity.User;
+import dayone.dayone.user.entity.repository.UserRepository;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,9 @@ class BookLogRepositoryTest extends RepositoryTest {
     @Autowired
     private BookRepository bookRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @DisplayName("BookLog 중 최신 10개 정보를 불러온다.")
     @Test
     void getBookLogsRecently10() {
@@ -33,8 +38,10 @@ class BookLogRepositoryTest extends RepositoryTest {
         Pageable pageable = PageRequest.of(0, 10);
         final Book book = Book.forSave("책 제목", "작가", "출판사", "이미지", "ISBN");
         bookRepository.save(book);
+        final User user = User.forSave("test@test.com", "password", "이름");
+        userRepository.save(user);
 
-        final List<BookLog> nBookLogWrittenNow = createNBookLogWrittenNow(20, book);
+        final List<BookLog> nBookLogWrittenNow = createNBookLogWrittenNow(20, book, user);
         bookLogRepository.saveAll(nBookLogWrittenNow);
 
         // when
@@ -55,8 +62,10 @@ class BookLogRepositoryTest extends RepositoryTest {
         Pageable pageable = PageRequest.of(0, 10);
         final Book book = Book.forSave("책 제목", "작가", "출판사", "이미지", "ISBN");
         bookRepository.save(book);
+        final User user = User.forSave("test@test.com", "password", "이름");
+        userRepository.save(user);
 
-        final List<BookLog> nBookLogWrittenNow = createNBookLogWrittenNow(10, book);
+        final List<BookLog> nBookLogWrittenNow = createNBookLogWrittenNow(10, book, user);
         bookLogRepository.saveAll(nBookLogWrittenNow);
 
         // when
@@ -70,10 +79,10 @@ class BookLogRepositoryTest extends RepositoryTest {
         });
     }
 
-    private List<BookLog> createNBookLogWrittenNow(final int cnt, final Book book) {
+    private List<BookLog> createNBookLogWrittenNow(final int cnt, final Book book, final User user) {
         List<BookLog> bookLogs = new ArrayList<>();
         for (int i = 1; i <= cnt; i++) {
-            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, 1L, 5, DateConstant.NOW.plusSeconds(i));
+            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, user, 5, DateConstant.NOW.plusSeconds(i));
             bookLogs.add(bookLog);
         }
         return bookLogs;
@@ -85,8 +94,11 @@ class BookLogRepositoryTest extends RepositoryTest {
         // given
         final Book book = Book.forSave("책 제목", "작가", "출판사", "이미지", "ISBN");
         bookRepository.save(book);
-        final List<BookLog> bookLogsWrittenThisWeek = createNBookLogWrittenThisWeek(10, book);
-        final List<BookLog> bookLogsWrittenLastWeek = createNBookLogWrittenLastWeek(10, book);
+        final User user = User.forSave("test@test.com", "password", "이름");
+        userRepository.save(user);
+
+        final List<BookLog> bookLogsWrittenThisWeek = createNBookLogWrittenThisWeek(10, book, user);
+        final List<BookLog> bookLogsWrittenLastWeek = createNBookLogWrittenLastWeek(10, book, user);
 
         bookLogRepository.saveAll(bookLogsWrittenThisWeek);
         bookLogRepository.saveAll(bookLogsWrittenLastWeek);
@@ -105,23 +117,23 @@ class BookLogRepositoryTest extends RepositoryTest {
         });
     }
 
-    private static List<BookLog> createNBookLogWrittenThisWeek(final int cnt, final Book book) {
+    private static List<BookLog> createNBookLogWrittenThisWeek(final int cnt, final Book book, final User user) {
         List<BookLog> bookLogs = new ArrayList<>();
 
         int likeCount = 1;
         for (long i = 1; i <= cnt; i++) {
-            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, i, likeCount++, DateConstant.THIS_MONDAY);
+            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, user, likeCount++, DateConstant.THIS_MONDAY);
             bookLogs.add(bookLog);
         }
         return bookLogs;
     }
 
-    private static List<BookLog> createNBookLogWrittenLastWeek(final int cnt, final Book book) {
+    private static List<BookLog> createNBookLogWrittenLastWeek(final int cnt, final Book book, final User user) {
         List<BookLog> bookLogs = new ArrayList<>();
 
         int likeCount = 1;
         for (long i = 1; i <= cnt; i++) {
-            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, i, likeCount++, DateConstant.LAST_MONDAY);
+            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, user, likeCount++, DateConstant.LAST_MONDAY);
             bookLogs.add(bookLog);
         }
         return bookLogs;

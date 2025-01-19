@@ -1,5 +1,6 @@
 package dayone.dayone.booklog.ui;
 
+import dayone.dayone.auth.ui.argumentresolver.AuthUser;
 import dayone.dayone.booklog.service.BookLogService;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
@@ -27,8 +28,8 @@ public class BookLogController {
     private final BookLogService bookLogService;
 
     @PostMapping
-    public ResponseEntity<Void> create(final @RequestBody BookLogCreateRequest request) {
-        final Long savedId = bookLogService.create(request);
+    public ResponseEntity<Void> create(final @AuthUser Long userId, final @RequestBody BookLogCreateRequest request) {
+        final Long savedId = bookLogService.create(userId, request);
         return ResponseEntity.created(URI.create(String.format("/api/v1/book-logs/%d", savedId))).build();
     }
 
