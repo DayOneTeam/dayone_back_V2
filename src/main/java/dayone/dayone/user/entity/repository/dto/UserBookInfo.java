@@ -8,5 +8,7 @@ public interface UserBookInfo {
 
     String getThumbnail();
 
+    String getTitle();
+
     LocalDateTime getRecentlyCreatedAt();
 }

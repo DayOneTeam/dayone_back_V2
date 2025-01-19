@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailAndPassword(final String email, final String password);
 
     @Query("""
-        SELECT distinct b.id as id, b.thumbnail as thumbnail, MAX(bl.createdAt) as recentlyCreatedAt
+        SELECT distinct b.id as id, b.thumbnail as thumbnail, b.title as title, MAX(bl.createdAt) as recentlyCreatedAt
         FROM Users u
         JOIN BookLog bl ON bl.user = u
         JOIN Book b ON bl.book = b

@@ -36,7 +36,7 @@ public class UserBookDocsTest extends DocsTest {
     void readUserBooks() throws Exception {
         // given
         given(userBookService.getUserBooks(anyLong()))
-            .willReturn(new UserBookListResponse(List.of(new UserBookResponse(1L, "책 표지 사진"))));
+            .willReturn(new UserBookListResponse(List.of(new UserBookResponse(1L, "책 표지 사진", "책 제목"))));
         successAuth();
 
         // when
@@ -55,7 +55,8 @@ public class UserBookDocsTest extends DocsTest {
                     fieldWithPath("code").type(JsonFieldType.NUMBER).description("성공 코드 ex) 1"),
                     fieldWithPath("message").type(JsonFieldType.STRING).description("성공 메시지 ex) 조회된 책 목록"),
                     fieldWithPath("data.user_books[].id").type(JsonFieldType.NUMBER).description("책 id"),
-                    fieldWithPath("data.user_books[].thumbnail").type(JsonFieldType.STRING).description("책 표지 사진 url")
+                    fieldWithPath("data.user_books[].thumbnail").type(JsonFieldType.STRING).description("책 표지 사진 url"),
+                    fieldWithPath("data.user_books[].title").type(JsonFieldType.STRING).description("책 제목")
                 )
             ));
     }
