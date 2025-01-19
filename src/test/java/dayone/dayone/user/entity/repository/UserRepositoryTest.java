@@ -1,5 +1,6 @@
 package dayone.dayone.user.entity.repository;
 
+import com.jayway.jsonpath.internal.function.sequence.First;
 import dayone.dayone.book.entity.Book;
 import dayone.dayone.book.entity.repository.BookRepository;
 import dayone.dayone.booklog.entity.BookLog;
@@ -7,6 +8,7 @@ import dayone.dayone.booklog.entity.repository.BookLogRepository;
 import dayone.dayone.support.RepositoryTest;
 import dayone.dayone.user.entity.User;
 import dayone.dayone.user.entity.repository.dto.UserBookInfo;
+import dayone.dayone.user.entity.repository.dto.UserBookLogInfo;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,5 +60,29 @@ class UserRepositoryTest extends RepositoryTest {
         }
         bookRepository.saveAll(books);
         return books;
+    }
+
+    @DisplayName("유저가 책에 작성한 bookLog를 불러온다.(최신 작성 순으로 정렬)")
+    @Test
+    void getUserBookLogInfo() {
+        // given
+        final User user = userRepository.save(User.forSave("test@test.com", "password", "이름"));
+        final User anotherUser = userRepository.save(User.forSave("test@test.com", "password", "이름"));
+
+        final Book book = bookRepository.save(Book.forSave("책", "작가", "출판사", "이미지", "ISBN"));
+
+        final BookLog bookLog1 = bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", book, user));
+        final BookLog bookLog2 = bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", book, user));
+        final BookLog bookLog3 = bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", book, anotherUser));
+
+        // when
+        final List<UserBookLogInfo> result = userRepository.findUserBookLogInfo(user.getId(), book.getId());
+
+        // then
+        SoftAssertions.assertSoftly(softAssertions -> {
+            softAssertions.assertThat(result).hasSize(2);
+            softAssertions.assertThat(result.get(0).getId()).isEqualTo(bookLog2.getId());
+            softAssertions.assertThat(result.get(1).getId()).isEqualTo(bookLog1.getId());
+        });
     }
 }
