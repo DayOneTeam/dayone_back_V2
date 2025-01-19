@@ -1,6 +1,7 @@
 package dayone.dayone.user.service;
 
 import dayone.dayone.book.entity.Book;
+import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.fixture.TestBookFactory;
 import dayone.dayone.fixture.TestBookLogFactory;
 import dayone.dayone.fixture.TestUserFactory;
@@ -9,6 +10,8 @@ import dayone.dayone.user.entity.User;
 import dayone.dayone.user.exception.UserErrorCode;
 import dayone.dayone.user.exception.UserException;
 import dayone.dayone.user.service.dto.UserBookListResponse;
+import dayone.dayone.user.service.dto.UserBookLogListResponse;
+import dayone.dayone.user.service.dto.UserBookLogResponse;
 import dayone.dayone.user.service.dto.UserBookResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -79,6 +82,42 @@ class UserBookServiceTest extends ServiceTest {
         // when
         // then
         assertThatThrownBy(() -> userBookService.getUserBooks(notExistUserId))
+            .isInstanceOf(UserException.class)
+            .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
+    }
+
+    @DisplayName("유저가 자신의 책에 작성한 bookLog를 불러온다.")
+    @Test
+    void readUserBookLogs() {
+        // given
+        final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+        final Book book = testBookFactory.createBook("책", "작가", "출판사");
+        final BookLog bookLog1 = testBookLogFactory.createBookLog(book, user);
+        final BookLog bookLog2 = testBookLogFactory.createBookLog(book, user);
+        final BookLog bookLog3 = testBookLogFactory.createBookLog(book, user);
+
+        // when
+        final UserBookLogListResponse result = userBookService.getUserBookLogs(user.getId(), book.getId());
+
+        // then
+        final List<Long> expectedBookLogIds = List.of(bookLog3.getId(), bookLog2.getId(), bookLog1.getId());
+
+        final List<Long> resultBookLogIds = result.bookLogs().stream()
+            .map(UserBookLogResponse::id)
+            .toList();
+
+        assertThat(resultBookLogIds).usingRecursiveComparison().isEqualTo(expectedBookLogIds);
+    }
+
+    @DisplayName("존재하지 않는 유저가 책에 작성한 bookLog를 불러오면 예외가 발생한다.")
+    @Test
+    void readUserBookLogsWithNotExistUser() {
+        // given
+        final long notExistUserId = Long.MAX_VALUE;
+        final Book book = testBookFactory.createBook("책", "작가", "출판사");
+
+        // when, then
+        assertThatThrownBy(() -> userBookService.getUserBookLogs(notExistUserId, book.getId()))
             .isInstanceOf(UserException.class)
             .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
     }
