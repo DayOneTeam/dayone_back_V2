@@ -6,6 +6,7 @@ import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogTop4Response;
+import dayone.dayone.booklog.service.dto.BookLogWriteActiveResponse;
 import dayone.dayone.global.response.CommonResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -49,5 +50,11 @@ public class BookLogController {
     public CommonResponseDto<BookLogTop4Response> getTop4BookLogs() {
         final BookLogTop4Response response = bookLogService.getTop4BookLogs(LocalDateTime.now());
         return CommonResponseDto.forSuccess(1, "Top4 BookLog 조회 성공", response);
+    }
+
+    @GetMapping("/write-in-week")
+    public CommonResponseDto<BookLogWriteActiveResponse> getBookLogWriteActiveInWeek(@AuthUser final Long userId) {
+        final BookLogWriteActiveResponse response = bookLogService.getBookLogWriteActive(userId);
+        return CommonResponseDto.forSuccess(1, "일주일간 bookLog 작성 날짜 조회 성공", response);
     }
 }
