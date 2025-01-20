@@ -74,3 +74,20 @@ include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week/http-
 ==== 인증되지 않은 유저가 Top4(Best) Book Log 목록을 조회할 경우
 include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week-fail-with-unauthorized-user/response-fields.adoc[]
 include::{snippets}/read-most-liked-and-written-recently-book-logs-in-week-fail-with-unauthorized-user/http-response.adoc[]
+
+== Active Date On Book Log Write In Week Read
+
+=== Request
+include::{snippets}/read-active-date-that-write-book-log-in-week/request-headers.adoc[]
+include::{snippets}/read-active-date-that-write-book-log-in-week/http-request.adoc[]
+
+=== Response
+
+==== 정상적으로 주간 bookLog 작성 날짜를 활성화 정보를 조회한 경우
+include::{snippets}/read-active-date-that-write-book-log-in-week/response-fields.adoc[]
+include::{snippets}/read-active-date-that-write-book-log-in-week/http-response.adoc[]
+
+==== 인증되지 않은 유저가 주간 bookLog 작성 활성화 정보를 조회할 경우
+include::{snippets}/read-active-date-that-write-book-log-in-week-fail-with-unauthorized-user/response-fields.adoc[]
+include::{snippets}/read-active-date-that-write-book-log-in-week-fail-with-unauthorized-user/http-response.adoc[]
+
