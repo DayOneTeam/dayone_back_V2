@@ -7,6 +7,7 @@ import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogResponse;
 import dayone.dayone.booklog.service.dto.BookLogTop4Response;
+import dayone.dayone.booklog.service.dto.BookLogWriteActiveResponse;
 import dayone.dayone.support.DocsTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -368,5 +369,61 @@ public class BookLogDocsTest extends DocsTest {
                     )
                 ));
         }
+
+        @DisplayName("유저가 자신이 한 주간 bookLog를 작성한 날짜를 활성화한 정보를 조회한다.")
+        @Test
+        void readActiveDateThatWriteBookLogInWeek() throws Exception {
+            // given
+            given(bookLogService.getBookLogWriteActive(anyLong()))
+                .willReturn(new BookLogWriteActiveResponse(List.of(true, false, true, true, false, true, false)));
+            successAuth();
+
+            // when
+            final ResultActions result = mockMvc.perform(get("/api/v1/book-logs/write-in-week")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"));
+
+            // then
+            result.andExpect(status().isOk())
+                .andDo(document("read-active-date-that-write-book-log-in-week",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    requestHeaders(
+                        headerWithName(HttpHeaders.AUTHORIZATION).description("인증된 사용자의 accessToken")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").type(JsonFieldType.NUMBER).description("성공 코드 ex) 1"),
+                        fieldWithPath("message").type(JsonFieldType.STRING).description("성공 메시지 ex) 일주일간 bookLog 작성 날짜 조회 성공"),
+                        fieldWithPath("data.active_day[]").type(JsonFieldType.ARRAY).description("일주일간 bookLog를 작성한 요일 활성화 정보")
+
+                    )
+                ));
+        }
+
+        @DisplayName("인증되지 않은 유저가 주간 bookLog를 작성한 날짜를 활성한 정보를 조회할 경우 401예외가 발생한다.")
+        @Test
+        void failReadActiveDateThatWriteBookLogInWeekWithUnauthorizedUser() throws Exception {
+            // given
+            failAuth();
+
+            // when
+            final ResultActions result = mockMvc.perform(get("/api/v1/book-logs/write-in-week")
+                .header(HttpHeaders.AUTHORIZATION, "비어있거나 혹은 존재하지 않는 UserToken 정보"));
+
+            // then
+            result.andExpect(status().isUnauthorized())
+                .andDo(document("read-active-date-that-write-book-log-in-week-fail-with-unauthorized-user",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    requestHeaders(
+                        headerWithName(HttpHeaders.AUTHORIZATION).description("비어 있거나 존재하지 않는 User의 Token 정보")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").type(JsonFieldType.NUMBER).description("실패 코드 ex) 4003"),
+                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메세지 ex) 로그인 되지 않은 유저입니다."),
+                        fieldWithPath("data").type(null).description("null")
+                    )
+                ));
+        }
+
     }
 }

@@ -10,6 +10,7 @@ import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogResponse;
 import dayone.dayone.booklog.service.dto.BookLogTop4Response;
+import dayone.dayone.booklog.service.dto.BookLogWriteActiveResponse;
 import dayone.dayone.fixture.TestBookFactory;
 import dayone.dayone.fixture.TestBookLogFactory;
 import dayone.dayone.fixture.TestUserFactory;
@@ -103,88 +104,127 @@ class BookLogServiceTest extends ServiceTest {
         }
     }
 
-    @DisplayName("BookLog를 cursor기반으로 10개씩 조회한다.")
-    @MethodSource("cursorAndExpect")
-    @ParameterizedTest
-    void readBookLogsByCursor(long cursor, int expectSize, int firstId, int lastId, long nextCursor, boolean next) {
-        // given
-        final Book book = testBookFactory.createBook("책", "작가", "출판사");
-        final User user = testUserFactory.createUser("test@test.com", "password", "이름");
-        final List<BookLog> bookLogs = testBookLogFactory.createNBookLog(20, book, user);
+    @DisplayName("bookLog 조회")
+    @Nested
+    class ReadBookLog {
+        @DisplayName("BookLog를 cursor기반으로 10개씩 조회한다.")
+        @MethodSource("cursorAndExpect")
+        @ParameterizedTest
+        void readBookLogsByCursor(long cursor, int expectSize, int firstId, int lastId, long nextCursor, boolean next) {
+            // given
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final List<BookLog> bookLogs = testBookLogFactory.createNBookLog(20, book, user);
 
-        // when
-        final BookLogPaginationListResponse response = bookLogService.getAllBookLogs(cursor);
+            // when
+            final BookLogPaginationListResponse response = bookLogService.getAllBookLogs(cursor);
 
-        // then
-        int startIndex = 0;
-        int lastIndex = response.bookLogs().size() - 1;
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(response.bookLogs()).hasSize(expectSize);
-            softly.assertThat(response.bookLogs().get(startIndex).id()).isEqualTo(firstId);
-            softly.assertThat(response.bookLogs().get(lastIndex).id()).isEqualTo(lastId);
-            softly.assertThat(response.nextCursor()).isEqualTo(nextCursor);
-            softly.assertThat(response.next()).isEqualTo(next);
-        });
-    }
+            // then
+            int startIndex = 0;
+            int lastIndex = response.bookLogs().size() - 1;
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(response.bookLogs()).hasSize(expectSize);
+                softly.assertThat(response.bookLogs().get(startIndex).id()).isEqualTo(firstId);
+                softly.assertThat(response.bookLogs().get(lastIndex).id()).isEqualTo(lastId);
+                softly.assertThat(response.nextCursor()).isEqualTo(nextCursor);
+                softly.assertThat(response.next()).isEqualTo(next);
+            });
+        }
 
-    private static Stream<Arguments> cursorAndExpect() {
-        return Stream.of(
-            // 커서, 응답 개수, 응답 레코드의 첫 id, 응답 레코드의 마지막 id, 다음 커서, 다음 데이터 존재 여부
-            arguments(11, 10, 10, 1, -1, false),
-            arguments(9, 8, 8, 1, -1, false),
-            arguments(12, 10, 11, 2, 2, true),
-            arguments(21, 10, 20, 11, 11, true)
-        );
-    }
+        private static Stream<Arguments> cursorAndExpect() {
+            return Stream.of(
+                // 커서, 응답 개수, 응답 레코드의 첫 id, 응답 레코드의 마지막 id, 다음 커서, 다음 데이터 존재 여부
+                arguments(11, 10, 10, 1, -1, false),
+                arguments(9, 8, 8, 1, -1, false),
+                arguments(12, 10, 11, 2, 2, true),
+                arguments(21, 10, 20, 11, 11, true)
+            );
+        }
 
-    @DisplayName("특정 bookLog의 상세 정보를 조회한다.")
-    @Test
-    void readBookLogDetail() {
-        // given
-        final Book book = testBookFactory.createBook("책", "작가", "출판사");
-        final User user = testUserFactory.createUser("test@test.com", "password", "이름");
-        final BookLog bookLog = BookLog.forSave("의미있는 구절", "내가 느낀 감정", book, user);
-        bookLogRepository.save(bookLog);
+        @DisplayName("특정 bookLog의 상세 정보를 조회한다.")
+        @Test
+        void readBookLogDetail() {
+            // given
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final BookLog bookLog = BookLog.forSave("의미있는 구절", "내가 느낀 감정", book, user);
+            bookLogRepository.save(bookLog);
 
-        long requestId = bookLog.getId();
+            long requestId = bookLog.getId();
 
-        // when
-        final BookLogDetailResponse response = bookLogService.getBookLogById(requestId);
+            // when
+            final BookLogDetailResponse response = bookLogService.getBookLogById(requestId);
 
-        // then
-        SoftAssertions.assertSoftly(softAssertions -> {
-            softAssertions.assertThat(response.id()).isEqualTo(bookLog.getId());
-            softAssertions.assertThat(response.passage()).isEqualTo(bookLog.getPassage());
-            softAssertions.assertThat(response.comment()).isEqualTo(bookLog.getComment());
-            softAssertions.assertThat(response.likeCnt()).isEqualTo(bookLog.getLikeCount());
-            softAssertions.assertThat(response.bookTitle()).isEqualTo(book.getTitle());
-            softAssertions.assertThat(response.bookCover()).isEqualTo(book.getThumbnail());
-            softAssertions.assertThat(response.createdAt()).isEqualTo(bookLog.getCreatedAt());
-        });
-    }
+            // then
+            SoftAssertions.assertSoftly(softAssertions -> {
+                softAssertions.assertThat(response.id()).isEqualTo(bookLog.getId());
+                softAssertions.assertThat(response.passage()).isEqualTo(bookLog.getPassage());
+                softAssertions.assertThat(response.comment()).isEqualTo(bookLog.getComment());
+                softAssertions.assertThat(response.likeCnt()).isEqualTo(bookLog.getLikeCount());
+                softAssertions.assertThat(response.bookTitle()).isEqualTo(book.getTitle());
+                softAssertions.assertThat(response.bookCover()).isEqualTo(book.getThumbnail());
+                softAssertions.assertThat(response.createdAt()).isEqualTo(bookLog.getCreatedAt());
+            });
+        }
 
-    @DisplayName("한 주내 가장 좋아요를 받은 bookLog 4개를 조회한다.")
-    @Test
-    void getMostLikedAndWrittenRecentlyBookLogsInWeek() {
-        // given
-        final Book book = testBookFactory.createBook("책", "작가", "출판사");
-        final User user = testUserFactory.createUser("test@test.com", "password", "이름");
-        final List<BookLog> bookLogWrittenThisWeek = testBookLogFactory.createBookLogWrittenThisWeek(10, book, user);
-        final List<BookLog> bookLogWrittenLastWeek = testBookLogFactory.createBookLogWrittenLastWeek(10, book, user);
+        @DisplayName("한 주내 가장 좋아요를 받은 bookLog 4개를 조회한다.")
+        @Test
+        void getMostLikedAndWrittenRecentlyBookLogsInWeek() {
+            // given
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final List<BookLog> bookLogWrittenThisWeek = testBookLogFactory.createBookLogWrittenThisWeek(7, book, user);
+            final List<BookLog> bookLogWrittenLastWeek = testBookLogFactory.createBookLogWrittenLastWeek(7, book, user);
 
-        // when
-        final BookLogTop4Response response = bookLogService.getTop4BookLogs(LocalDateTime.now());
+            // when
+            final BookLogTop4Response response = bookLogService.getTop4BookLogs(LocalDateTime.now());
 
-        // then
-        int topCount = 4;
-        final List<BookLogResponse> expect = bookLogWrittenThisWeek.subList(bookLogWrittenLastWeek.size() - topCount, bookLogWrittenLastWeek.size())
-            .stream()
-            .map(BookLogResponse::from)
-            .toList();
+            // then
+            int topCount = 4;
+            final List<BookLogResponse> expect = bookLogWrittenThisWeek.subList(bookLogWrittenLastWeek.size() - topCount, bookLogWrittenLastWeek.size())
+                .stream()
+                .map(BookLogResponse::from)
+                .toList();
 
-        SoftAssertions.assertSoftly(softAssertions -> {
-            softAssertions.assertThat(response.bookLogs()).hasSize(4);
-            softAssertions.assertThat(response.bookLogs()).containsExactlyInAnyOrderElementsOf(expect);
-        });
+            SoftAssertions.assertSoftly(softAssertions -> {
+                softAssertions.assertThat(response.bookLogs()).hasSize(4);
+                softAssertions.assertThat(response.bookLogs()).containsExactlyInAnyOrderElementsOf(expect);
+            });
+        }
+
+        @DisplayName("유저의 일주일간 bookLog를 작성한 날짜의 활성화 정보를 조회한다.")
+        @Test
+        void getUserBookLogActiveInWeek() {
+            // given
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final List<BookLog> bookLogWrittenThisWeek = testBookLogFactory.createBookLogWrittenThisWeek(4, book, user);
+
+            // when
+            final BookLogWriteActiveResponse result = bookLogService.getBookLogWriteActive(user.getId());
+
+            // then
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(result.activeDay().get(0)).isTrue();
+                softly.assertThat(result.activeDay().get(1)).isTrue();
+                softly.assertThat(result.activeDay().get(2)).isTrue();
+                softly.assertThat(result.activeDay().get(3)).isTrue();
+                softly.assertThat(result.activeDay().get(4)).isFalse();
+                softly.assertThat(result.activeDay().get(5)).isFalse();
+                softly.assertThat(result.activeDay().get(6)).isFalse();
+            });
+        }
+
+        @DisplayName("존재하지 않는 유저가 bookLog를 작성한 날짜의 활성화 정보를 조회하면 예외를 발생한다.")
+        @Test
+        void getBookLogWriteActiveNotExistUser() {
+            // given
+            final Long notExistUserId = Long.MAX_VALUE;
+            // when
+            // then
+            assertThatThrownBy(() -> bookLogService.getBookLogWriteActive(notExistUserId))
+                .isInstanceOf(UserException.class)
+                .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
+        }
     }
 }

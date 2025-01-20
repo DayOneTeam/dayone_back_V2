@@ -38,7 +38,7 @@ public class TestBookLogFactory {
     public List<BookLog> createBookLogWrittenThisWeek(final int cnt, final Book book, final User user) {
         List<BookLog> bookLogs = new ArrayList<>();
         for (int i = 1; i <= cnt; i++) {
-            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, user, i, DateConstant.THIS_MONDAY.plusSeconds(i));
+            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, user, i, DateConstant.THIS_MONDAY.plusDays(i - 1));
             bookLogs.add(bookLog);
         }
         bookLogRepository.saveAll(bookLogs);
@@ -48,7 +48,7 @@ public class TestBookLogFactory {
     public List<BookLog> createBookLogWrittenLastWeek(final int cnt, final Book book, final User user) {
         List<BookLog> bookLogs = new ArrayList<>();
         for (int i = 1; i <= cnt; i++) {
-            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, user, i, DateConstant.LAST_MONDAY.plusSeconds(i));
+            final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절" + i), new Comment("내가 느낀 감정" + i), book, user, i, DateConstant.LAST_MONDAY.plusDays(i - 1));
             bookLogs.add(bookLog);
         }
         bookLogRepository.saveAll(bookLogs);

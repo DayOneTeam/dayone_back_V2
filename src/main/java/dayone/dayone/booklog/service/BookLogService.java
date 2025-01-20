@@ -4,6 +4,7 @@ import dayone.dayone.book.entity.Book;
 import dayone.dayone.book.entity.repository.BookRepository;
 import dayone.dayone.book.exception.BookErrorCode;
 import dayone.dayone.book.exception.BookException;
+import dayone.dayone.booklog.common.DateFinder;
 import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.booklog.entity.BookLogs;
 import dayone.dayone.booklog.entity.repository.BookLogRepository;
@@ -13,6 +14,7 @@ import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogTop4Response;
+import dayone.dayone.booklog.service.dto.BookLogWriteActiveResponse;
 import dayone.dayone.user.entity.User;
 import dayone.dayone.user.entity.repository.UserRepository;
 import dayone.dayone.user.exception.UserErrorCode;
@@ -37,7 +39,6 @@ public class BookLogService {
     private final BookLogRepository bookLogRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
-    private final DateFinder dateFinder;
 
     @Transactional
     public Long create(final Long userId, final BookLogCreateRequest request) {
@@ -72,12 +73,25 @@ public class BookLogService {
     }
 
     public BookLogTop4Response getTop4BookLogs(final LocalDateTime now) {
-        LocalDateTime monDay = dateFinder.getWeekStartDate(now);
-        LocalDateTime sunDay = dateFinder.getWeekEndDate(now);
+        LocalDateTime monDay = DateFinder.getWeekStartDate(now);
+        LocalDateTime sunDay = DateFinder.getWeekEndDate(now);
 
         final List<BookLog> bookLogsWrittenThisWeek = bookLogRepository.findAllByCreatedAtBetween(monDay, sunDay);
 
         BookLogs bookLogs = new BookLogs(bookLogsWrittenThisWeek);
         return BookLogTop4Response.from(bookLogs.getMostLikedBookLogs());
+    }
+
+    public BookLogWriteActiveResponse getBookLogWriteActive(final Long userId) {
+        userRepository.findById(userId)
+            .orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER));
+
+        LocalDateTime monDay = DateFinder.getWeekStartDate(LocalDateTime.now());
+        LocalDateTime sunDay = DateFinder.getWeekEndDate(LocalDateTime.now());
+
+        final List<BookLog> bookLogsWrittenThisWeek = bookLogRepository.findAllByUserIdAndCreatedAtBetween(userId, monDay, sunDay);
+
+        BookLogs bookLogs = new BookLogs(bookLogsWrittenThisWeek);
+        return BookLogWriteActiveResponse.from(bookLogs.getBookLogWriteActive());
     }
 }

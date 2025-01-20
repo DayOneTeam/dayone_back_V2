@@ -2,7 +2,9 @@ package dayone.dayone.booklog.entity;
 
 import dayone.dayone.booklog.entity.value.Comment;
 import dayone.dayone.booklog.entity.value.Passage;
+import dayone.dayone.support.DateConstant;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -69,5 +71,31 @@ class BookLogsTest {
         final List<BookLog> expected = List.of(bookLogWithFiveLike, bookLogWithOneLike);
 
         Assertions.assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @DisplayName("BookLog의 생성 날짜 정보를 통해서 작성한 날을 활성화한 정보를 조회한다.")
+    @Test
+    void getActiveDateOnWriteBookLogInWeek() {
+        // given
+        final LocalDateTime tuesDay = DateConstant.THIS_MONDAY.plusDays(1);
+        final LocalDateTime friDay = DateConstant.THIS_MONDAY.plusDays(4);
+        final BookLog bookLogWriteTuesDay = new BookLog(1L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 5, tuesDay);
+        final BookLog bookLogWriteFriDay = new BookLog(1L, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), null, null, 5, friDay);
+
+        BookLogs bookLogs = new BookLogs(List.of(bookLogWriteTuesDay, bookLogWriteFriDay));
+
+        // when
+        final boolean[] result = bookLogs.getBookLogWriteActive();
+
+        // then
+        SoftAssertions.assertSoftly(softAssertions -> {
+            softAssertions.assertThat(result[0]).isFalse();
+            softAssertions.assertThat(result[1]).isTrue();
+            softAssertions.assertThat(result[2]).isFalse();
+            softAssertions.assertThat(result[3]).isFalse();
+            softAssertions.assertThat(result[4]).isTrue();
+            softAssertions.assertThat(result[5]).isFalse();
+            softAssertions.assertThat(result[6]).isFalse();
+        });
     }
 }
