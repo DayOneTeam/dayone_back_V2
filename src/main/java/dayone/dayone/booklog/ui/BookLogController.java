@@ -29,19 +29,19 @@ public class BookLogController {
     private final BookLogService bookLogService;
 
     @PostMapping
-    public ResponseEntity<Void> create(final @AuthUser Long userId, final @RequestBody BookLogCreateRequest request) {
+    public ResponseEntity<Void> create(@AuthUser final Long userId, @RequestBody final BookLogCreateRequest request) {
         final Long savedId = bookLogService.create(userId, request);
         return ResponseEntity.created(URI.create(String.format("/api/v1/book-logs/%d", savedId))).build();
     }
 
     @GetMapping
-    public CommonResponseDto<BookLogPaginationListResponse> getBookLogs(@RequestParam(value = "cursor", defaultValue = "-1") String cursor) {
+    public CommonResponseDto<BookLogPaginationListResponse> getBookLogs(@RequestParam(value = "cursor", defaultValue = "-1") final String cursor) {
         final BookLogPaginationListResponse response = bookLogService.getAllBookLogs(Long.parseLong(cursor));
         return CommonResponseDto.forSuccess(1, "BookLog 조회 성공", response);
     }
 
     @GetMapping("/{id}")
-    public CommonResponseDto<BookLogDetailResponse> getBookLogById(@PathVariable("id") Long bookLogId) {
+    public CommonResponseDto<BookLogDetailResponse> getBookLogById(@PathVariable("id") final Long bookLogId) {
         final BookLogDetailResponse response = bookLogService.getBookLogById(bookLogId);
         return CommonResponseDto.forSuccess(1, "BookLog 상세 조회 성공", response);
     }

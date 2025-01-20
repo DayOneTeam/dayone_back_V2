@@ -17,19 +17,31 @@ public interface BookLogRepository extends JpaRepository<BookLog, Long> {
 
     Slice<BookLog> findAllByIdLessThanOrderByCreatedAtDesc(Long id, Pageable pageable);
 
-    @Query("update BookLog bl set bl.likeCount = bl.likeCount +1 where bl.id = :id")
+    @Query("""
+        UPDATE BookLog bl
+        SET bl.likeCount = bl.likeCount + 1
+        WHERE bl.id = :id
+        """)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     void plusLike(@Param("id") final Long bookLogId);
 
-    @Query("update BookLog bl set bl.likeCount = bl.likeCount -1 where bl.id = :id")
+    @Query("""
+        UPDATE BookLog bl
+        SET bl.likeCount = bl.likeCount -1
+        WHERE bl.id = :id
+        """)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     void minusLike(@Param("id") final Long bookLogId);
 
-    @Query("select bl from BookLog bl where bl.createdAt between :monDay and :sunDay")
+    @Query("""
+        SELECT bl
+        FROM BookLog bl
+        WHERE bl.createdAt BETWEEN :monDay AND :sunDay
+        """)
     List<BookLog> findAllByCreatedAtBetween(@Param("monDay") final LocalDateTime monDay, @Param("sunDay") final LocalDateTime sunDay);
 
     @Query("""
-        SELECT bl 
+        SELECT bl
         FROM BookLog bl
         JOIN Users u ON bl.user = u
         WHERE u.id = :id
