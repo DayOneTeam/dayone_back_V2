@@ -138,4 +138,28 @@ class BookLogRepositoryTest extends RepositoryTest {
         }
         return bookLogs;
     }
+
+    @DisplayName("한 유저의 일주일 간 작성한 bookLog 목록을 조회한다.")
+    @Test
+    void getUserBookLogWriteInWeek() {
+        // given
+        final User user = User.forSave("user1", "user1@naver.com", "password");
+        userRepository.save(user);
+
+        final Book book = Book.forSave("책 제목", "책 저자", "책 ", "책 표지 사진", "책 isbn");
+        bookRepository.save(book);
+
+        final BookLog bookLogWrittenLastWeek = new BookLog(null, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), book, user, 0, DateConstant.LAST_MONDAY);
+        final BookLog bookLogWrittenThisWeek = new BookLog(null, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), book, user, 0, DateConstant.THIS_MONDAY);
+        bookLogRepository.saveAll(List.of(bookLogWrittenLastWeek, bookLogWrittenThisWeek));
+
+        // when
+        final List<BookLog> result = bookLogRepository.findAllByUserIdAndCreatedAtBetween(user.getId(), DateConstant.THIS_MONDAY, DateConstant.THIS_SUNDAY);
+
+        // then
+        SoftAssertions.assertSoftly(softAssertions -> {
+            softAssertions.assertThat(result).hasSize(1);
+            softAssertions.assertThat(result.get(0).getId()).isEqualTo(bookLogWrittenThisWeek.getId());
+        });
+    }
 }
