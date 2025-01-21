@@ -41,7 +41,12 @@ public class AuthController {
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<Void> logout(final HttpServletRequest request, final HttpServletResponse response) {
+    public ResponseEntity<Void> logout(
+        @AuthUser final Long userId,
+        @CookieValue(value = REFRESH_TOKEN_COOKIE_KEY, defaultValue = EMPTY_REFRESH_TOKEN) final String refreshToken,
+        final HttpServletRequest request, final HttpServletResponse response
+    ) {
+        authService.deleteToken(userId, refreshToken);
         final Cookie cookie = cookieProvider.deleteCookie(request.getCookies(), REFRESH_TOKEN_COOKIE_KEY);
         response.addCookie(cookie);
         return ResponseEntity.noContent().build();

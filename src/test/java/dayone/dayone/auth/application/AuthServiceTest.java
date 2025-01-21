@@ -24,8 +24,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,7 +34,7 @@ class AuthServiceTest extends ServiceTest {
 
     @Autowired
     private TestUserFactory testUserFactory;
-    
+
     @Autowired
     private TestAuthTokenFactory testAuthTokenFactory;
 
@@ -69,10 +69,12 @@ class AuthServiceTest extends ServiceTest {
             // then
             final Claims accessTokenClaims = tokenProvider.parseClaims(tokenInfo.accessToken());
             final Claims refreshTokenClaims = tokenProvider.parseClaims(tokenInfo.refreshToken());
+            Optional<AuthToken> authToken = authTokenRepository.findByUserIdAndRefreshToken(user.getId(), tokenInfo.refreshToken());
 
             SoftAssertions.assertSoftly(softAssertions -> {
                 softAssertions.assertThat(accessTokenClaims.get("memberId", Long.class)).isEqualTo(user.getId());
                 softAssertions.assertThat(refreshTokenClaims.get("memberId", Long.class)).isEqualTo(user.getId());
+                softAssertions.assertThat(authToken.isPresent()).isTrue();
             });
         }
 
@@ -97,6 +99,44 @@ class AuthServiceTest extends ServiceTest {
                 Arguments.of(new LoginRequest("test1@test.com", "test")),
                 Arguments.of(new LoginRequest("test@test.com", "test1"))
             );
+        }
+    }
+
+    @DisplayName("token 삭제")
+    @Nested
+    class DeleteToken {
+        @DisplayName("로그아웃시 refreshToken을 삭제한다.")
+        @Test
+        void deleteToken() {
+            // given
+            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final String existingRefreshToken = "refreshToken";
+            testAuthTokenFactory.createAuthToken(user.getId(), existingRefreshToken);
+
+            // when
+            authService.deleteToken(user.getId(), existingRefreshToken);
+
+            // then
+            Optional<AuthToken> authToken = authTokenRepository.findByUserIdAndRefreshToken(user.getId(), existingRefreshToken);
+            Assertions.assertThat(authToken.isPresent()).isFalse();
+        }
+
+        @DisplayName("잘못된 유저 혹은 refreshToken 정보로 토큰 삭제 요청 시 예외가 발생한다.")
+        @Test
+        void deleteTokenWithNotExistUserOrWrongRefreshToken() {
+            // given
+            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final String existingRefreshToken = "refreshToken";
+            testAuthTokenFactory.createAuthToken(user.getId(), existingRefreshToken);
+
+            final Long nonExistUserId = Long.MAX_VALUE;
+            final String wrongRefreshToken = "wrongRefreshToken";
+
+            // when
+            // then
+            assertThatThrownBy(() -> authService.deleteToken(nonExistUserId, existingRefreshToken))
+                .isInstanceOf(AuthException.class)
+                .hasMessage(AuthErrorCode.HAVE_NOT_REFRESH_TOKEN.getMessage());
         }
     }
 

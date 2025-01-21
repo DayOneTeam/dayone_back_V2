@@ -25,6 +25,7 @@ public class AuthService {
     private final AuthTokenRepository authTokenRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public TokenInfo login(final LoginRequest loginRequest) {
         final User user = userRepository.findByEmailAndPassword(loginRequest.email(), loginRequest.password())
             .orElseThrow(() -> new AuthException(AuthErrorCode.FAIL_LOGIN));
@@ -32,6 +33,7 @@ public class AuthService {
         final String accessToken = tokenProvider.createAccessToken(user.getId());
         final String refreshToken = tokenProvider.createRefreshToken(user.getId());
 
+        authTokenRepository.save(AuthToken.forSave(user.getId(), refreshToken));
         return new TokenInfo(accessToken, refreshToken);
     }
 
@@ -42,6 +44,14 @@ public class AuthService {
             orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER));
 
         return userId;
+    }
+
+    @Transactional
+    public void deleteToken(final Long userId, final String refreshToken) {
+        final AuthToken authToken = authTokenRepository.findByUserIdAndRefreshToken(userId, refreshToken)
+            .orElseThrow(() -> new AuthException(AuthErrorCode.HAVE_NOT_REFRESH_TOKEN));
+
+        authTokenRepository.delete(authToken);
     }
 
     @Transactional
