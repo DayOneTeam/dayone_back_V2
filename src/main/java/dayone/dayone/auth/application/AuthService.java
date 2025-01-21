@@ -2,6 +2,8 @@ package dayone.dayone.auth.application;
 
 import dayone.dayone.auth.application.dto.LoginRequest;
 import dayone.dayone.auth.application.dto.TokenInfo;
+import dayone.dayone.auth.entity.AuthToken;
+import dayone.dayone.auth.entity.repository.AuthTokenRepository;
 import dayone.dayone.auth.exception.AuthErrorCode;
 import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.auth.token.TokenProvider;
@@ -20,8 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final TokenProvider tokenProvider;
+    private final AuthTokenRepository authTokenRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public TokenInfo login(final LoginRequest loginRequest) {
         final User user = userRepository.findByEmailAndPassword(loginRequest.email(), loginRequest.password())
             .orElseThrow(() -> new AuthException(AuthErrorCode.FAIL_LOGIN));
@@ -29,6 +33,7 @@ public class AuthService {
         final String accessToken = tokenProvider.createAccessToken(user.getId());
         final String refreshToken = tokenProvider.createRefreshToken(user.getId());
 
+        authTokenRepository.save(AuthToken.forSave(user.getId(), refreshToken));
         return new TokenInfo(accessToken, refreshToken);
     }
 
@@ -39,5 +44,25 @@ public class AuthService {
             orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER));
 
         return userId;
+    }
+
+    @Transactional
+    public void deleteToken(final Long userId, final String refreshToken) {
+        final AuthToken authToken = authTokenRepository.findByUserIdAndRefreshToken(userId, refreshToken)
+            .orElseThrow(() -> new AuthException(AuthErrorCode.HAVE_NOT_REFRESH_TOKEN));
+
+        authTokenRepository.delete(authToken);
+    }
+
+    @Transactional
+    public TokenInfo reissueToken(final Long userId, final String refreshToken) {
+        final AuthToken authToken = authTokenRepository.findByUserIdAndRefreshToken(userId, refreshToken)
+            .orElseThrow(() -> new AuthException(AuthErrorCode.HAVE_NOT_REFRESH_TOKEN));
+
+        final String reissueAccessToken = tokenProvider.createAccessToken(userId);
+        final String reissueRefreshToken = tokenProvider.createRefreshToken(userId);
+
+        authToken.updateRefreshToken(reissueRefreshToken);
+        return new TokenInfo(reissueAccessToken, reissueRefreshToken);
     }
 }

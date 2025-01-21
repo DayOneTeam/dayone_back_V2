@@ -2,9 +2,12 @@ package dayone.dayone.auth.application;
 
 import dayone.dayone.auth.application.dto.LoginRequest;
 import dayone.dayone.auth.application.dto.TokenInfo;
+import dayone.dayone.auth.entity.AuthToken;
+import dayone.dayone.auth.entity.repository.AuthTokenRepository;
 import dayone.dayone.auth.exception.AuthErrorCode;
 import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.auth.token.TokenProvider;
+import dayone.dayone.fixture.TestAuthTokenFactory;
 import dayone.dayone.fixture.TestUserFactory;
 import dayone.dayone.support.ServiceTest;
 import dayone.dayone.user.entity.User;
@@ -22,6 +25,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,7 +36,19 @@ class AuthServiceTest extends ServiceTest {
     private TestUserFactory testUserFactory;
 
     @Autowired
+    private TestAuthTokenFactory testAuthTokenFactory;
+
+    @Autowired
+    private AuthTokenRepository authTokenRepository;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TokenProvider tokenProvider;
+
+    @Autowired
+    private AuthService authService;
 
     @DisplayName("로그인")
     @Nested
@@ -42,7 +58,7 @@ class AuthServiceTest extends ServiceTest {
         void successLogin() {
             // given
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
-            AuthService authService = new AuthService(tokenProvider, userRepository);
+            AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
 
             final User user = testUserFactory.createUser("test@test.com", "test", "test");
             final LoginRequest loginRequest = new LoginRequest(user.getEmail(), user.getPassword());
@@ -53,10 +69,12 @@ class AuthServiceTest extends ServiceTest {
             // then
             final Claims accessTokenClaims = tokenProvider.parseClaims(tokenInfo.accessToken());
             final Claims refreshTokenClaims = tokenProvider.parseClaims(tokenInfo.refreshToken());
+            Optional<AuthToken> authToken = authTokenRepository.findByUserIdAndRefreshToken(user.getId(), tokenInfo.refreshToken());
 
             SoftAssertions.assertSoftly(softAssertions -> {
                 softAssertions.assertThat(accessTokenClaims.get("memberId", Long.class)).isEqualTo(user.getId());
                 softAssertions.assertThat(refreshTokenClaims.get("memberId", Long.class)).isEqualTo(user.getId());
+                softAssertions.assertThat(authToken.isPresent()).isTrue();
             });
         }
 
@@ -66,7 +84,7 @@ class AuthServiceTest extends ServiceTest {
         void failLoginWithNotExistMember(LoginRequest wrongLoginRequest) {
             // given
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
-            AuthService authService = new AuthService(tokenProvider, userRepository);
+            AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
             testUserFactory.createUser("test@test.com", "test", "test");
 
             // when
@@ -84,6 +102,44 @@ class AuthServiceTest extends ServiceTest {
         }
     }
 
+    @DisplayName("token 삭제")
+    @Nested
+    class DeleteToken {
+        @DisplayName("로그아웃시 refreshToken을 삭제한다.")
+        @Test
+        void deleteToken() {
+            // given
+            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final String existingRefreshToken = "refreshToken";
+            testAuthTokenFactory.createAuthToken(user.getId(), existingRefreshToken);
+
+            // when
+            authService.deleteToken(user.getId(), existingRefreshToken);
+
+            // then
+            Optional<AuthToken> authToken = authTokenRepository.findByUserIdAndRefreshToken(user.getId(), existingRefreshToken);
+            Assertions.assertThat(authToken.isPresent()).isFalse();
+        }
+
+        @DisplayName("잘못된 유저 혹은 refreshToken 정보로 토큰 삭제 요청 시 예외가 발생한다.")
+        @Test
+        void deleteTokenWithNotExistUserOrWrongRefreshToken() {
+            // given
+            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final String existingRefreshToken = "refreshToken";
+            testAuthTokenFactory.createAuthToken(user.getId(), existingRefreshToken);
+
+            final Long nonExistUserId = Long.MAX_VALUE;
+            final String wrongRefreshToken = "wrongRefreshToken";
+
+            // when
+            // then
+            assertThatThrownBy(() -> authService.deleteToken(nonExistUserId, existingRefreshToken))
+                .isInstanceOf(AuthException.class)
+                .hasMessage(AuthErrorCode.HAVE_NOT_REFRESH_TOKEN.getMessage());
+        }
+    }
+
 
     @DisplayName("token 검증")
     @Nested
@@ -93,7 +149,7 @@ class AuthServiceTest extends ServiceTest {
         void validateUserByAccessToken() {
             // given
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
-            AuthService authService = new AuthService(tokenProvider, userRepository);
+            AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
 
             final User user = testUserFactory.createUser("test@test.com", "test", "test");
             final String accessToken = tokenProvider.createAccessToken(user.getId());
@@ -111,7 +167,7 @@ class AuthServiceTest extends ServiceTest {
         void invalidUserByAccessToken() {
             // given
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
-            AuthService authService = new AuthService(tokenProvider, userRepository);
+            AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
 
             final long wrongUserId = Long.MAX_VALUE;
             final String accessToken = tokenProvider.createAccessToken(wrongUserId);
@@ -122,5 +178,28 @@ class AuthServiceTest extends ServiceTest {
                 .isInstanceOf(UserException.class)
                 .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
         }
+    }
+
+    @DisplayName("reissue token을 통해 accessToken을 재발급한다.")
+    @Test
+    void reissueToken() {
+        // given
+        final User user = testUserFactory.createUser("test@test.com", "test", "test");
+        final String existingRefreshToken = "refreshToken";
+        testAuthTokenFactory.createAuthToken(user.getId(), existingRefreshToken);
+
+        // when
+        final TokenInfo result = authService.reissueToken(user.getId(), existingRefreshToken);
+
+        // then
+        final Claims accessTokenClaims = tokenProvider.parseClaims(result.accessToken());
+        final Claims refreshTokenClaims = tokenProvider.parseClaims(result.refreshToken());
+        AuthToken authToken = authTokenRepository.findByUserIdAndRefreshToken(user.getId(), result.refreshToken()).get();
+
+        SoftAssertions.assertSoftly(softAssertions -> {
+            softAssertions.assertThat(accessTokenClaims.get("memberId", Long.class)).isEqualTo(user.getId());
+            softAssertions.assertThat(refreshTokenClaims.get("memberId", Long.class)).isEqualTo(user.getId());
+            softAssertions.assertThat(authToken.getRefreshToken()).isEqualTo(result.refreshToken());
+        });
     }
 }
