@@ -2,6 +2,8 @@ package dayone.dayone.auth.docs;
 
 import dayone.dayone.auth.application.dto.LoginRequest;
 import dayone.dayone.auth.application.dto.TokenInfo;
+import dayone.dayone.auth.exception.AuthErrorCode;
+import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.support.DocsTest;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +15,8 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -125,5 +129,70 @@ public class AuthDocsTest extends DocsTest {
                     )
                 ));
         }
+    }
+
+    @DisplayName("토큰 재발급 요청")
+    @Nested
+    class ReissueToken {
+        @DisplayName("refreshToken을 통해 accessToken을 재발급한다.")
+        @Test
+        void reissueTokenWithRefreshToken() throws Exception {
+            // given
+            given(authService.reissueToken(anyLong(), anyString()))
+                .willReturn(new TokenInfo("reissuedAccessToken", "reissueRefreshToken"));
+            given(cookieProvider.createAuthCookie(any(), any()))
+                .willReturn(new Cookie("refreshToken", "reissuedRefreshTokenValue"));
+
+            // when
+            final ResultActions result = mockMvc.perform(post("/api/v1/auth/reissue-token")
+                .header(HttpHeaders.COOKIE, "refreshToken=refreshTokenValue"));
+
+            // then
+            result.andExpect(status().isOk())
+                .andDo(document("reissue-token",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    requestHeaders(
+                        headerWithName(HttpHeaders.COOKIE).description("refreshToken 정보")
+                    ),
+                    responseHeaders(
+                        headerWithName(HttpHeaders.SET_COOKIE).description("재발급된 refreshToken 정보")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").type(JsonFieldType.NUMBER).description("성공 코드 ex) 1"),
+                        fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메세지 ex) 토큰 재발급 성공"),
+                        fieldWithPath("data.accessToken").type(JsonFieldType.STRING).description("재발급된 accessToken 정보")
+
+                    )
+                ));
+        }
+    }
+
+    @DisplayName("refresh Token 없이 토큰 재발급 요청 시 400 예외를 발생한다.")
+    @Test
+    void reissueTokenWithoutRefreshToken() throws Exception {
+        // given
+        given(authService.reissueToken(anyLong(), anyString()))
+            .willThrow(new AuthException(AuthErrorCode.HAVE_NOT_REFRESH_TOKEN));
+
+        // when
+        final ResultActions result = mockMvc.perform(post("/api/v1/auth/reissue-token")
+            .header(HttpHeaders.COOKIE, "비어있거나 혹은 잘못된 refreshToken 정보"));
+
+
+        // then
+        result.andExpect(status().isBadRequest())
+            .andDo(document("reissue-token-without-refresh-token",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                requestHeaders(
+                    headerWithName(HttpHeaders.COOKIE).description("비어 있거나 존재하지 않는 refreshToken 정보")
+                ),
+                responseFields(
+                    fieldWithPath("code").type(JsonFieldType.NUMBER).description("실패 코드 ex) 4004"),
+                    fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메세지 ex) 잘못된 refresh 토큰을 가지고 있습니다."),
+                    fieldWithPath("data").type(null).description("null")
+                )
+            ));
     }
 }

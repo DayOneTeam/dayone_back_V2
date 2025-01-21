@@ -2,9 +2,12 @@ package dayone.dayone.auth.application;
 
 import dayone.dayone.auth.application.dto.LoginRequest;
 import dayone.dayone.auth.application.dto.TokenInfo;
+import dayone.dayone.auth.entity.AuthToken;
+import dayone.dayone.auth.entity.repository.AuthTokenRepository;
 import dayone.dayone.auth.exception.AuthErrorCode;
 import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.auth.token.TokenProvider;
+import dayone.dayone.fixture.TestAuthTokenFactory;
 import dayone.dayone.fixture.TestUserFactory;
 import dayone.dayone.support.ServiceTest;
 import dayone.dayone.user.entity.User;
@@ -21,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Stream;
 
@@ -30,9 +34,21 @@ class AuthServiceTest extends ServiceTest {
 
     @Autowired
     private TestUserFactory testUserFactory;
+    
+    @Autowired
+    private TestAuthTokenFactory testAuthTokenFactory;
+
+    @Autowired
+    private AuthTokenRepository authTokenRepository;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TokenProvider tokenProvider;
+
+    @Autowired
+    private AuthService authService;
 
     @DisplayName("로그인")
     @Nested
@@ -42,7 +58,7 @@ class AuthServiceTest extends ServiceTest {
         void successLogin() {
             // given
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
-            AuthService authService = new AuthService(tokenProvider, userRepository);
+            AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
 
             final User user = testUserFactory.createUser("test@test.com", "test", "test");
             final LoginRequest loginRequest = new LoginRequest(user.getEmail(), user.getPassword());
@@ -66,7 +82,7 @@ class AuthServiceTest extends ServiceTest {
         void failLoginWithNotExistMember(LoginRequest wrongLoginRequest) {
             // given
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
-            AuthService authService = new AuthService(tokenProvider, userRepository);
+            AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
             testUserFactory.createUser("test@test.com", "test", "test");
 
             // when
@@ -93,7 +109,7 @@ class AuthServiceTest extends ServiceTest {
         void validateUserByAccessToken() {
             // given
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
-            AuthService authService = new AuthService(tokenProvider, userRepository);
+            AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
 
             final User user = testUserFactory.createUser("test@test.com", "test", "test");
             final String accessToken = tokenProvider.createAccessToken(user.getId());
@@ -111,7 +127,7 @@ class AuthServiceTest extends ServiceTest {
         void invalidUserByAccessToken() {
             // given
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
-            AuthService authService = new AuthService(tokenProvider, userRepository);
+            AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
 
             final long wrongUserId = Long.MAX_VALUE;
             final String accessToken = tokenProvider.createAccessToken(wrongUserId);
@@ -122,5 +138,28 @@ class AuthServiceTest extends ServiceTest {
                 .isInstanceOf(UserException.class)
                 .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
         }
+    }
+
+    @DisplayName("reissue token을 통해 accessToken을 재발급한다.")
+    @Test
+    void reissueToken() {
+        // given
+        final User user = testUserFactory.createUser("test@test.com", "test", "test");
+        final String existingRefreshToken = "refreshToken";
+        testAuthTokenFactory.createAuthToken(user.getId(), existingRefreshToken);
+
+        // when
+        final TokenInfo result = authService.reissueToken(user.getId(), existingRefreshToken);
+
+        // then
+        final Claims accessTokenClaims = tokenProvider.parseClaims(result.accessToken());
+        final Claims refreshTokenClaims = tokenProvider.parseClaims(result.refreshToken());
+        AuthToken authToken = authTokenRepository.findByUserIdAndRefreshToken(user.getId(), result.refreshToken()).get();
+
+        SoftAssertions.assertSoftly(softAssertions -> {
+            softAssertions.assertThat(accessTokenClaims.get("memberId", Long.class)).isEqualTo(user.getId());
+            softAssertions.assertThat(refreshTokenClaims.get("memberId", Long.class)).isEqualTo(user.getId());
+            softAssertions.assertThat(authToken.getRefreshToken()).isEqualTo(result.refreshToken());
+        });
     }
 }
