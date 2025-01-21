@@ -4,12 +4,15 @@ import dayone.dayone.auth.application.AuthService;
 import dayone.dayone.auth.application.dto.LoginRequest;
 import dayone.dayone.auth.application.dto.LoginResponse;
 import dayone.dayone.auth.application.dto.TokenInfo;
+import dayone.dayone.auth.application.dto.TokenReissueResponse;
+import dayone.dayone.auth.ui.argumentresolver.AuthUser;
 import dayone.dayone.global.response.CommonResponseDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private static final String REFRESH_TOKEN_COOKIE_KEY = "refreshToken";
+    private static final String EMPTY_REFRESH_TOKEN = "none";
 
     private final CookieProvider cookieProvider;
     private final AuthService authService;
@@ -41,5 +45,15 @@ public class AuthController {
         final Cookie cookie = cookieProvider.deleteCookie(request.getCookies(), REFRESH_TOKEN_COOKIE_KEY);
         response.addCookie(cookie);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reissue-token")
+    public CommonResponseDto<TokenReissueResponse> reissueToken(@AuthUser final Long userId, @CookieValue(value = REFRESH_TOKEN_COOKIE_KEY, defaultValue = EMPTY_REFRESH_TOKEN) final String refreshToken, final HttpServletResponse response) {
+        final TokenInfo tokenInfo = authService.reissueToken(userId, refreshToken);
+
+        final Cookie reissuedRefreshToken = cookieProvider.createAuthCookie(tokenInfo.refreshToken(), REFRESH_TOKEN_COOKIE_KEY);
+        response.addCookie(reissuedRefreshToken);
+
+        return CommonResponseDto.forSuccess(1, "토큰 재발급 성공", new TokenReissueResponse(tokenInfo.accessToken()));
     }
 }
