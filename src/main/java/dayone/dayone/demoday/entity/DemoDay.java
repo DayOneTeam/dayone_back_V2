@@ -3,9 +3,12 @@ package dayone.dayone.demoday.entity;
 import dayone.dayone.demoday.entity.value.Capacity;
 import dayone.dayone.demoday.entity.value.DemoDate;
 import dayone.dayone.demoday.entity.value.RegistrationDate;
+import dayone.dayone.demoday.entity.value.Status;
 import dayone.dayone.global.entity.BaseEntity;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,6 +44,9 @@ public class DemoDay extends BaseEntity {
 
     private String location;
 
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     public DemoDay(
         final Long id,
         final String title,
@@ -49,7 +55,8 @@ public class DemoDay extends BaseEntity {
         final Capacity capacity,
         final RegistrationDate registrationDate,
         final DemoDate demoDate,
-        final String location
+        final String location,
+        final Status status
     ) {
         this.id = id;
         this.title = title;
@@ -59,6 +66,7 @@ public class DemoDay extends BaseEntity {
         this.registrationDate = registrationDate;
         this.demoDate = demoDate;
         this.location = location;
+        this.status = status;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
