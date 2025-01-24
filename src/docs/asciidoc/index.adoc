@@ -17,3 +17,4 @@
 - link:book-log.html[Book Log Api 문서]
 - link:book-log-like.html[Book Log Like Api 문서]
 - link:my-page.html[My Page Api 문서]
+- link:demo-day.html[Demo Day Api 문서]
