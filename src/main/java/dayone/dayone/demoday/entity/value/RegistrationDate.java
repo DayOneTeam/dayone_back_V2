@@ -7,7 +7,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -29,5 +31,11 @@ public class RegistrationDate {
         if (endRegistrationDate.isBefore(startRegistrationDate)) {
             throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_REGISTRATION_PERIOD_ERROR);
         }
+    }
+
+    public static RegistrationDate of(final LocalDate demoDate, final LocalTime demoTime) {
+        final LocalDateTime startRegistrationDate = LocalDateTime.now();
+        final LocalDateTime endRegistrationDate = LocalDateTime.of(demoDate, demoTime);
+        return new RegistrationDate(startRegistrationDate, endRegistrationDate);
     }
 }

@@ -7,7 +7,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -25,5 +27,9 @@ public class DemoDate {
         if (demoDate.isBefore(LocalDateTime.now())) {
             throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_IS_NOT_BEFORE_NOW);
         }
+    }
+
+    public static DemoDate of(final LocalDate demoDate, final LocalTime demoTime) {
+        return new DemoDate(LocalDateTime.of(demoDate, demoTime));
     }
 }

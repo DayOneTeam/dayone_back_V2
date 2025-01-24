@@ -16,7 +16,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -70,7 +72,32 @@ public class DemoDay extends BaseEntity {
         this.demoDate = demoDate;
         this.location = location;
         this.status = status;
+        this.userId = userId;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public static DemoDay forSave(
+        final String title,
+        final String description,
+        final String thumbnail,
+        final LocalDate demoDate,
+        final LocalTime demoTime,
+        final int capacity,
+        final String location,
+        final Long userId
+    ) {
+        return new DemoDay(
+            null,
+            title,
+            description,
+            thumbnail,
+            new Capacity(capacity),
+            RegistrationDate.of(demoDate, demoTime),
+            DemoDate.of(demoDate, demoTime),
+            location,
+            Status.OPEN,
+            userId
+        );
     }
 }
