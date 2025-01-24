@@ -2,7 +2,11 @@ package dayone.dayone.demoday.service;
 
 import dayone.dayone.demoday.entity.DemoDay;
 import dayone.dayone.demoday.entity.respository.DemoDayRepository;
+import dayone.dayone.demoday.entity.value.Status;
 import dayone.dayone.demoday.service.dto.DemoDayCreateRequest;
+import dayone.dayone.demoday.service.dto.DemoDayListResponse;
+import dayone.dayone.demoday.service.dto.DemoDayResponse;
+import dayone.dayone.fixture.TestDemoDayFactory;
 import dayone.dayone.fixture.TestUserFactory;
 import dayone.dayone.support.ServiceTest;
 import dayone.dayone.user.entity.User;
@@ -16,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -23,6 +28,9 @@ class DemoDayServiceTest extends ServiceTest {
 
     @Autowired
     private TestUserFactory testUserFactory;
+
+    @Autowired
+    private TestDemoDayFactory testDemoDayFactory;
 
     @Autowired
     private DemoDayRepository demoDayRepository;
@@ -74,6 +82,32 @@ class DemoDayServiceTest extends ServiceTest {
             assertThatThrownBy(() -> demoDayService.create(nonExistUserId, request))
                 .isInstanceOf(UserException.class)
                 .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
+        }
+    }
+
+    @DisplayName("데모데이 조회")
+    @Nested
+    class readDemoDay {
+        @DisplayName("데모데이 상태 정보를 바탕으로 데모데이를 조회한다.")
+        @Test
+        void readDemoDayByStatus() {
+            // given
+            final List<DemoDay> openDemoDay = testDemoDayFactory.createNDemoDaysWithStatus(3, "title", "description", Status.valueOf("OPEN"));
+            final List<DemoDay> closedDemoDay = testDemoDayFactory.createNDemoDaysWithStatus(2, "title", "description", Status.valueOf("CLOSED"));
+            final String status = "OPEN";
+
+            // when
+            final DemoDayListResponse response = demoDayService.getDemoDaysWithStatus(status);
+
+            // then
+            final List<DemoDayResponse> expected = openDemoDay.stream()
+                .map(DemoDayResponse::from)
+                .toList();
+
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(response.demoDays()).hasSize(3);
+                softly.assertThat(response.demoDays()).usingRecursiveComparison().isEqualTo(expected);
+            });
         }
     }
 }
