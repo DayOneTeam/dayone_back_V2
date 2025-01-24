@@ -2,13 +2,17 @@ package dayone.dayone.demoday.service;
 
 import dayone.dayone.demoday.entity.DemoDay;
 import dayone.dayone.demoday.entity.respository.DemoDayRepository;
+import dayone.dayone.demoday.entity.value.Status;
 import dayone.dayone.demoday.service.dto.DemoDayCreateRequest;
+import dayone.dayone.demoday.service.dto.DemoDayListResponse;
 import dayone.dayone.user.entity.repository.UserRepository;
 import dayone.dayone.user.exception.UserErrorCode;
 import dayone.dayone.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -34,5 +38,10 @@ public class DemoDayService {
 
         demoDayRepository.save(demoDay);
         return demoDay.getId();
+    }
+
+    public DemoDayListResponse getDemoDaysWithStatus(final String status) {
+        final List<DemoDay> demoDays = demoDayRepository.findAllByStatus(Status.valueOf(status));
+        return DemoDayListResponse.from(demoDays);
     }
 }

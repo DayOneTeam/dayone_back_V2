@@ -57,7 +57,7 @@ class DemoDayServiceTest extends ServiceTest {
                 softAssertions.assertThat(demoDay.getCapacity().getValue()).isEqualTo(request.capacity());
                 softAssertions.assertThat(demoDay.getRegistrationDate().getStartRegistrationDate().toLocalDate()).isEqualTo(today);
                 softAssertions.assertThat(demoDay.getRegistrationDate().getEndRegistrationDate().toLocalDate()).isEqualTo(tomorrow);
-                softAssertions.assertThat(demoDay.getDemoDate().getDemoDate().toLocalDate()).isEqualTo(tomorrow);
+                softAssertions.assertThat(demoDay.getDemoDate().toLocalDate()).isEqualTo(tomorrow);
             });
         }
 
