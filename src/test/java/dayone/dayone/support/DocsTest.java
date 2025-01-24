@@ -10,6 +10,7 @@ import dayone.dayone.auth.ui.interceptor.AuthInterceptor;
 import dayone.dayone.book.service.BookService;
 import dayone.dayone.booklog.service.BookLogService;
 import dayone.dayone.bookloglike.service.BookLogLikeService;
+import dayone.dayone.demoday.service.DemoDayService;
 import dayone.dayone.user.service.UserBookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -43,6 +44,9 @@ public class DocsTest {
 
     @MockBean
     public UserBookService userBookService;
+
+    @MockBean
+    public DemoDayService demoDayService;
 
     @MockBean
     public AuthInterceptor authInterceptor;
