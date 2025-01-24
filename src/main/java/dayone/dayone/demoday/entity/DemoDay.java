@@ -47,6 +47,8 @@ public class DemoDay extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    private Long userId;
+
     public DemoDay(
         final Long id,
         final String title,
@@ -56,7 +58,8 @@ public class DemoDay extends BaseEntity {
         final RegistrationDate registrationDate,
         final DemoDate demoDate,
         final String location,
-        final Status status
+        final Status status,
+        final Long userId
     ) {
         this.id = id;
         this.title = title;
