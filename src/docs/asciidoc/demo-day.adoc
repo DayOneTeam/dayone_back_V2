@@ -19,3 +19,19 @@ include::{snippets}/demo-day-create/http-response.adoc[]
 ==== 인증되지 않은 유저가 데모데이 생성을 요청한 경우
 include::{snippets}/fail-create-demo-day-with-unauthenticated-user/response-fields.adoc[]
 include::{snippets}/fail-create-demo-day-with-unauthenticated-user/http-response.adoc[]
+
+== Active Demo Day List Read
+
+=== Request
+include::{snippets}/read-demo-day-list/request-headers.adoc[]
+include::{snippets}/read-demo-day-list/http-request.adoc[]
+
+=== Response
+
+==== 정상적으로 활성화된 데모데이 목록을 조회한 경우
+include::{snippets}/read-demo-day-list/response-fields.adoc[]
+include::{snippets}/read-demo-day-list/http-response.adoc[]
+
+==== 인증되지 않은 유저가 활성화된 데모데이 목록을 조회할 경우
+include::{snippets}/fail-read-demo-day-with-unauthenticated-user/response-fields.adoc[]
+include::{snippets}/fail-read-demo-day-with-unauthenticated-user/http-response.adoc[]

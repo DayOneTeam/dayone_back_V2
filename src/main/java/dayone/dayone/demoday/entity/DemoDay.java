@@ -100,4 +100,8 @@ public class DemoDay extends BaseEntity {
             userId
         );
     }
+
+    public LocalDateTime getDemoDate() {
+        return demoDate.getDemoDate();
+    }
 }
