@@ -100,6 +100,21 @@ class AuthServiceTest extends ServiceTest {
                 Arguments.of(new LoginRequest("test@test.com", "test1"))
             );
         }
+
+        @DisplayName("이미 로그인되 계정으로 로그인 시도 시 예외를 발생한다.")
+        @Test
+        void failLoginWithAlreadyLoginedUser() {
+            // given
+            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            testAuthTokenFactory.createAuthToken(user.getId(), "refreshToken");
+            final LoginRequest wrongLoginRequest = new LoginRequest(user.getEmail(), user.getPassword());
+
+            // when
+            // then
+            assertThatThrownBy(() -> authService.login(wrongLoginRequest))
+                .isInstanceOf(AuthException.class)
+                .hasMessage(AuthErrorCode.ALREADY_LOGIN.getMessage());
+        }
     }
 
     @DisplayName("token 삭제")

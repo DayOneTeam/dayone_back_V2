@@ -30,6 +30,11 @@ public class AuthService {
         final User user = userRepository.findByEmailAndPassword(loginRequest.email(), loginRequest.password())
             .orElseThrow(() -> new AuthException(AuthErrorCode.FAIL_LOGIN));
 
+        authTokenRepository.findByUserId(user.getId())
+            .ifPresent(authToken -> {
+                throw new AuthException(AuthErrorCode.ALREADY_LOGIN);
+            });
+
         final String accessToken = tokenProvider.createAccessToken(user.getId());
         final String refreshToken = tokenProvider.createRefreshToken(user.getId());
 
