@@ -68,7 +68,7 @@ public class AuthDocsTest extends DocsTest {
                     responseFields(
                         fieldWithPath("code").type(JsonFieldType.NUMBER).description("성공 코드 ex) 1"),
                         fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메세지 ex) 로그인 성공"),
-                        fieldWithPath("data.accessToken").type(JsonFieldType.STRING).description("accessToken")
+                        fieldWithPath("data.access_token").type(JsonFieldType.STRING).description("accessToken")
                     )
                 ));
         }
@@ -161,7 +161,7 @@ public class AuthDocsTest extends DocsTest {
                     responseFields(
                         fieldWithPath("code").type(JsonFieldType.NUMBER).description("성공 코드 ex) 1"),
                         fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메세지 ex) 토큰 재발급 성공"),
-                        fieldWithPath("data.accessToken").type(JsonFieldType.STRING).description("재발급된 accessToken 정보")
+                        fieldWithPath("data.access_token").type(JsonFieldType.STRING).description("재발급된 accessToken 정보")
 
                     )
                 ));
