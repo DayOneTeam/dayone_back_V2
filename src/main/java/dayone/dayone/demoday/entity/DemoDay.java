@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -73,8 +74,8 @@ public class DemoDay extends BaseEntity {
         this.location = location;
         this.status = status;
         this.userId = userId;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
+        this.updatedAt = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
     }
 
     public static DemoDay forSave(

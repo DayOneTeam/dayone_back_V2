@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -28,8 +29,8 @@ public class BookLogLike extends BaseEntity {
         this.id = id;
         this.userId = userId;
         this.bookLogId = bookLogId;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
+        this.updatedAt = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
     }
 
     public static BookLogLike forSave(final Long userId, final Long bookLogId) {

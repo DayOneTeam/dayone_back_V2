@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -64,8 +65,8 @@ public class BookLog extends BaseEntity {
         this.book = book;
         this.user = user;
         this.likeCount = 0;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
+        this.updatedAt = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
     }
 
     public static BookLog forSave(final String passage, final String comment, final Book book, final User user) {
