@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ develop ]
+    types: [ opened, synchronize, reopened ]
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0.33
+        ports:
+          - 3309:3306
+        env:
+          MYSQL_DATABASE: dayone
+          MYSQL_ROOT_PASSWORD: mysql
+
+    steps:
+      - name: Pull Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+        shell: bash
+
+      - name: Build with Gradle
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3309/dayone
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: mysql
+        run: ./gradlew build
+        shell: bash
+
+      - name: Comment on test result
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: '**/build/test-results/test/TEST-*.xml'
+
+      - name: Show comment on fail part
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'  # JUnit 테스트 결과 파일 경로
+          token: ${{ github.token }}
