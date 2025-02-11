@@ -25,3 +25,13 @@ jwt:
   access-token-valid-time: 10000
   refresh-token-valid-time: 100000
   secret-code: json-web-token-secret-code-for-test
+
+cloud:
+  aws:
+    credentials:
+      access-key: accessKey
+      secret-key: secretKey
+    region:
+      static: region
+    s3:
+      bucket: bucket
