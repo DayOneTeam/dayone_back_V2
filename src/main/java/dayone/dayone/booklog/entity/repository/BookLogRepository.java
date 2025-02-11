@@ -13,8 +13,23 @@ import java.util.List;
 
 public interface BookLogRepository extends JpaRepository<BookLog, Long> {
 
+    @Query("""
+        SELECT bl
+        FROM BookLog bl
+        JOIN FETCH bl.user
+        JOIN FETCH bl.book
+        ORDER BY bl.createdAt DESC
+        """)
     Slice<BookLog> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
+    @Query("""
+        SELECT bl
+        FROM BookLog bl
+        JOIN FETCH bl.user
+        JOIN FETCH bl.book
+        WHERE bl.id < :id
+        ORDER BY bl.createdAt DESC
+        """)
     Slice<BookLog> findAllByIdLessThanOrderByCreatedAtDesc(Long id, Pageable pageable);
 
     @Query("""
@@ -36,6 +51,8 @@ public interface BookLogRepository extends JpaRepository<BookLog, Long> {
     @Query("""
         SELECT bl
         FROM BookLog bl
+        JOIN FETCH bl.user
+        JOIN FETCH bl.book
         WHERE bl.createdAt BETWEEN :monDay AND :sunDay
         """)
     List<BookLog> findAllByCreatedAtBetween(@Param("monDay") final LocalDateTime monDay, @Param("sunDay") final LocalDateTime sunDay);
@@ -43,8 +60,9 @@ public interface BookLogRepository extends JpaRepository<BookLog, Long> {
     @Query("""
         SELECT bl
         FROM BookLog bl
-        JOIN Users u ON bl.user = u
-        WHERE u.id = :id
+        JOIN FETCH bl.user
+        JOIN FETCH bl.book
+        WHERE bl.user.id = :id
         AND bl.createdAt between :monDay and :sunDay
         """)
     List<BookLog> findAllByUserIdAndCreatedAtBetween(@Param("id") final Long userId, @Param("monDay") final LocalDateTime monDay, @Param("sunDay") final LocalDateTime sunDay);
