@@ -159,7 +159,7 @@ public class BookLogDocsTest extends DocsTest {
         @Test
         void readBookLogsByCursor() throws Exception {
             // given
-            final List<BookLogResponse> response = List.of(new BookLogResponse(1L, "의미있는 구절", "내가 느낀 감정", 1, "책 제목", LocalDateTime.now()));
+            final List<BookLogResponse> response = List.of(new BookLogResponse(1L, "의미있는 구절", "내가 느낀 감정", 1, "책 제목", "유저", "유저 프로필", LocalDateTime.now()));
 
             given(bookLogService.getAllBookLogs(anyLong()))
                 .willReturn(new BookLogPaginationListResponse(response, false, -1L));
@@ -190,6 +190,8 @@ public class BookLogDocsTest extends DocsTest {
                         fieldWithPath("data.book_logs[].comment").type(JsonFieldType.STRING).description("댓글"),
                         fieldWithPath("data.book_logs[].book_title").type(JsonFieldType.STRING).description("책 제목"),
                         fieldWithPath("data.book_logs[].like_count").type(JsonFieldType.NUMBER).description("책 로그 좋아요 수"),
+                        fieldWithPath("data.book_logs[].user_name").type(JsonFieldType.STRING).description("유저 이름"),
+                        fieldWithPath("data.book_logs[].profile_image").type(JsonFieldType.STRING).description("유저 프로필 이미지"),
                         fieldWithPath("data.book_logs[].created_at").type(JsonFieldType.STRING).description("책 로그 생성 시간"),
                         fieldWithPath("data.next").type(JsonFieldType.BOOLEAN).description("다음 데이터 존재 여부"),
                         fieldWithPath("data.next_cursor").type(JsonFieldType.NUMBER).description("다음 데이터 커서")
@@ -309,10 +311,10 @@ public class BookLogDocsTest extends DocsTest {
         void readMostLikedAndWrittenRecentlyBookLogsInWeek() throws Exception {
             // given
             final List<BookLogResponse> bookLogResponses = List.of(
-                new BookLogResponse(1L, "의미있는 구절", "내가 느낀 감정", 5, "책 제목", LocalDateTime.now()),
-                new BookLogResponse(3L, "의미있는 구절", "내가 느낀 감정", 4, "책 제목", LocalDateTime.now()),
-                new BookLogResponse(2L, "의미있는 구절", "내가 느낀 감정", 4, "책 제목", LocalDateTime.now()),
-                new BookLogResponse(4L, "의미있는 구절", "내가 느낀 감정", 2, "책 제목", LocalDateTime.now())
+                new BookLogResponse(1L, "의미있는 구절", "내가 느낀 감정", 5, "책 제목", "유저", "유저 프로필", LocalDateTime.now()),
+                new BookLogResponse(3L, "의미있는 구절", "내가 느낀 감정", 4, "책 제목", "유저", "유저 프로필", LocalDateTime.now()),
+                new BookLogResponse(2L, "의미있는 구절", "내가 느낀 감정", 4, "책 제목", "유저", "유저 프로필", LocalDateTime.now()),
+                new BookLogResponse(4L, "의미있는 구절", "내가 느낀 감정", 2, "책 제목", "유저", "유저 프로필", LocalDateTime.now())
             );
 
             given(bookLogService.getTop4BookLogs(any()))
@@ -339,6 +341,8 @@ public class BookLogDocsTest extends DocsTest {
                         fieldWithPath("data.book_logs[].comment").type(JsonFieldType.STRING).description("댓글"),
                         fieldWithPath("data.book_logs[].book_title").type(JsonFieldType.STRING).description("책 제목"),
                         fieldWithPath("data.book_logs[].like_count").type(JsonFieldType.NUMBER).description("책 로그 좋아요 수"),
+                        fieldWithPath("data.book_logs[].user_name").type(JsonFieldType.STRING).description("유저 이름"),
+                        fieldWithPath("data.book_logs[].profile_image").type(JsonFieldType.STRING).description("유저 프로필 이미지"),
                         fieldWithPath("data.book_logs[].created_at").type(JsonFieldType.STRING).description("책 로그 생성 시간")
                     )
                 ));
