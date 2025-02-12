@@ -6,6 +6,7 @@ import dayone.dayone.auth.exception.AuthException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -19,7 +20,11 @@ public class AuthInterceptor implements HandlerInterceptor {
     private final AuthContext authContext;
 
     @Override
-    public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) throws Exception {
+    public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+        if (request.getMethod().equals(HttpMethod.OPTIONS.name())) {
+            return true;
+        }
+
         final Optional<String> token = TokenExtractor.extractToken(request);
         if (token.isEmpty()) {
             throw new AuthException(AuthErrorCode.NOT_LOGIN_USER);
