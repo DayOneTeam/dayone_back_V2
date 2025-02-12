@@ -15,9 +15,12 @@ public record BookLogDetailResponse(
     String bookTitle,
     @JsonProperty("book_cover")
     String bookCover,
+    @JsonProperty("user_name")
+    String userName,
+    @JsonProperty("profile_image")
+    String profileImage,
     @JsonProperty("created_at")
     LocalDateTime createdAt
-    // TODO : 유저 정보 추가하기
 ) {
     public static BookLogDetailResponse of(final BookLog bookLog) {
         return new BookLogDetailResponse(bookLog.getId(),
@@ -26,6 +29,8 @@ public record BookLogDetailResponse(
             bookLog.getLikeCount(),
             bookLog.getBook().getTitle(),
             bookLog.getBook().getThumbnail(),
+            bookLog.getUser().getName(),
+            bookLog.getUser().getProfileImage(),
             bookLog.getCreatedAt());
     }
 }

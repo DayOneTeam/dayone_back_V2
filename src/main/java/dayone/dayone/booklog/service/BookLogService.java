@@ -67,7 +67,7 @@ public class BookLogService {
     }
 
     public BookLogDetailResponse getBookLogById(final Long bookLogId) {
-        final BookLog bookLog = bookLogRepository.findById(bookLogId)
+        final BookLog bookLog = bookLogRepository.findByIdWithUserAndBook(bookLogId)
             .orElseThrow(() -> new BookLogException(BookLogErrorCode.NOT_EXIST_BOOK_LOG));
         return BookLogDetailResponse.of(bookLog);
     }
