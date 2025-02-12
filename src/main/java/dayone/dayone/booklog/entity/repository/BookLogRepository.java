@@ -10,8 +10,18 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookLogRepository extends JpaRepository<BookLog, Long> {
+
+    @Query("""
+        SELECT bl
+        FROM BookLog bl
+        JOIN FETCH bl.user
+        JOIN FETCH bl.book
+        WHERE bl.id = :id
+        """)
+    Optional<BookLog> findByIdWithUserAndBook(Long id);
 
     @Query("""
         SELECT bl
