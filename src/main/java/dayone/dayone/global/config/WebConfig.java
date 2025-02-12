@@ -34,9 +34,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(final CorsRegistry registry) {
         // TODO: 추후에 실제 도메인으로 변경할 것
         registry.addMapping("/**") // 모든 경로 허용
-            .allowedOriginPatterns("*") // 클라이언트 도메인
+            .allowedOrigins("http://localhost:3000") // 모든 웹 사이트 허용
             .allowedMethods("*") // 허용할 HTTP 메서드
             .allowedHeaders("*") // 모든 헤더 허용
-            .allowCredentials(true);
+            .allowCredentials(true)
+            .exposedHeaders("Location");
     }
 }
