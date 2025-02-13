@@ -15,6 +15,7 @@ import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogTop4Response;
 import dayone.dayone.booklog.service.dto.BookLogWriteActiveResponse;
+import dayone.dayone.booklog.service.dto.BookLogWriteCountResponse;
 import dayone.dayone.user.entity.User;
 import dayone.dayone.user.entity.repository.UserRepository;
 import dayone.dayone.user.exception.UserErrorCode;
@@ -93,5 +94,14 @@ public class BookLogService {
 
         BookLogs bookLogs = new BookLogs(bookLogsWrittenThisWeek);
         return BookLogWriteActiveResponse.from(bookLogs.getBookLogWriteActive());
+    }
+
+    public BookLogWriteCountResponse getWriteCount(final Long userId) {
+        userRepository.findById(userId)
+            .orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER));
+
+        final long writingCount = bookLogRepository.countByUserId(userId);
+
+        return new BookLogWriteCountResponse(writingCount);
     }
 }

@@ -1,6 +1,5 @@
 package dayone.dayone.user.entity.repository;
 
-import com.jayway.jsonpath.internal.function.sequence.First;
 import dayone.dayone.book.entity.Book;
 import dayone.dayone.book.entity.repository.BookRepository;
 import dayone.dayone.booklog.entity.BookLog;
