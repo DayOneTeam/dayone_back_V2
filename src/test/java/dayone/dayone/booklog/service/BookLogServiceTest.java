@@ -11,6 +11,7 @@ import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogResponse;
 import dayone.dayone.booklog.service.dto.BookLogTop4Response;
 import dayone.dayone.booklog.service.dto.BookLogWriteActiveResponse;
+import dayone.dayone.booklog.service.dto.BookLogWriteCountResponse;
 import dayone.dayone.fixture.TestBookFactory;
 import dayone.dayone.fixture.TestBookLogFactory;
 import dayone.dayone.fixture.TestUserFactory;
@@ -31,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -225,6 +227,39 @@ class BookLogServiceTest extends ServiceTest {
             // when
             // then
             assertThatThrownBy(() -> bookLogService.getBookLogWriteActive(notExistUserId))
+                .isInstanceOf(UserException.class)
+                .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
+        }
+
+        @DisplayName("특정 유저가 작성한 bookLog의 수를 조회한다.")
+        @Test
+        void getBookLogWriteCount() {
+            // given
+            final User user = testUserFactory.createUser("test1@test.com", "password1", "이름1");
+            final User anotherUser = testUserFactory.createUser("test2@test.com", "password2", "이름2");
+
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+
+            testBookLogFactory.createBookLog(book, user);
+            testBookLogFactory.createBookLog(book, user);
+            testBookLogFactory.createBookLog(book, anotherUser);
+
+            // when
+            final BookLogWriteCountResponse result = bookLogService.getWriteCount(user.getId());
+
+            // then
+            assertThat(result.count()).isEqualTo(2);
+        }
+
+        @DisplayName("존재하지 않는 유저가 자신이 작성한 bookLog의 수를 조회하면 예외가 발생한다.")
+        @Test
+        void getBookLogWriteCountWithNotExistUser() {
+            // given
+            final long notExistUserId = Long.MAX_VALUE;
+
+            // when
+            // then
+            assertThatThrownBy(() -> bookLogService.getWriteCount(notExistUserId))
                 .isInstanceOf(UserException.class)
                 .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
         }

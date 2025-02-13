@@ -8,6 +8,7 @@ import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
 import dayone.dayone.booklog.service.dto.BookLogResponse;
 import dayone.dayone.booklog.service.dto.BookLogTop4Response;
 import dayone.dayone.booklog.service.dto.BookLogWriteActiveResponse;
+import dayone.dayone.booklog.service.dto.BookLogWriteCountResponse;
 import dayone.dayone.support.DocsTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -433,5 +434,59 @@ public class BookLogDocsTest extends DocsTest {
                 ));
         }
 
+        @DisplayName("유저가 자신의 작성한 bookLog의 개수를 조회한다.")
+        @Test
+        void readUserBookLogCount() throws Exception {
+            // given
+            successAuth();
+            given(bookLogService.getWriteCount(any()))
+                .willReturn(new BookLogWriteCountResponse(1));
+
+            // when
+            final ResultActions result = mockMvc.perform(get("/api/v1/book-logs/count")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken")
+            );
+
+            // then
+            result.andExpect(status().isOk())
+                .andDo(document("read-user-book-log-count",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    requestHeaders(
+                        headerWithName(HttpHeaders.AUTHORIZATION).description("인증된 사용자의 accessToken")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").type(JsonFieldType.NUMBER).description("성공 코드 ex) 1"),
+                        fieldWithPath("message").type(JsonFieldType.STRING).description("성공 메시지 ex) bookLog 작성 개수 조회 성공"),
+                        fieldWithPath("data.count").type(JsonFieldType.NUMBER).description("작성한 book log의 개수")
+                    )
+                ));
+        }
+
+        @DisplayName("인증되지 않은 유저가 작성한 book log 개수를 조회할 경우 401 예외가 발생한다.")
+        @Test
+        void failReadBookLogCountWithUnauthorizedUser() throws Exception {
+            // given
+            failAuth();
+
+            // when
+            final ResultActions result = mockMvc.perform(get("/api/v1/book-logs/count")
+                .header(HttpHeaders.AUTHORIZATION, "비어있거나 혹은 존재하지 않는 UserToken 정보"));
+
+            // then
+            result.andExpect(status().isUnauthorized())
+                .andDo(document("fail-read-user-book-log-count-with-unauthorized-user",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    requestHeaders(
+                        headerWithName(HttpHeaders.AUTHORIZATION).description("인증되지 않은 유저의 accessToken")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").type(JsonFieldType.NUMBER).description("실패 코드 ex) 4003"),
+                        fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메세지 ex) 로그인 되지 않은 유저입니다."),
+                        fieldWithPath("data").type(null).description("null")
+                    )
+                ));
+        }
     }
 }
