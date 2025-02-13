@@ -76,4 +76,6 @@ public interface BookLogRepository extends JpaRepository<BookLog, Long> {
         AND bl.createdAt between :monDay and :sunDay
         """)
     List<BookLog> findAllByUserIdAndCreatedAtBetween(@Param("id") final Long userId, @Param("monDay") final LocalDateTime monDay, @Param("sunDay") final LocalDateTime sunDay);
+
+    long countByUserId(final Long userId);
 }
