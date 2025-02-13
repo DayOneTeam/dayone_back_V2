@@ -12,6 +12,7 @@ import dayone.dayone.booklog.service.BookLogService;
 import dayone.dayone.bookloglike.service.BookLogLikeService;
 import dayone.dayone.demoday.service.DemoDayService;
 import dayone.dayone.user.service.UserBookService;
+import dayone.dayone.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -47,6 +48,9 @@ public class DocsTest {
 
     @MockBean
     public DemoDayService demoDayService;
+
+    @MockBean
+    public UserService userService;
 
     @MockBean
     public AuthInterceptor authInterceptor;
