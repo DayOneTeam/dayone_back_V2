@@ -87,7 +87,7 @@ public class AuthDocsTest extends DocsTest {
             successAuth();
 
             // when
-            final ResultActions result = mockMvc.perform(delete("/api/v1/auth/logout")
+            final ResultActions result = mockMvc.perform(post("/api/v1/auth/logout")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"));
 
             // then
@@ -111,7 +111,7 @@ public class AuthDocsTest extends DocsTest {
             failAuth();
 
             // when
-            final ResultActions result = mockMvc.perform(delete("/api/v1/auth/logout")
+            final ResultActions result = mockMvc.perform(post("/api/v1/auth/logout")
                 .header(HttpHeaders.AUTHORIZATION, "비어있거나 혹은 존재하지 않는 UserToken 정보"));
 
             // then
