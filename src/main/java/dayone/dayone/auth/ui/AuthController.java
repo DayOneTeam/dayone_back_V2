@@ -40,7 +40,7 @@ public class AuthController {
         return CommonResponseDto.forSuccess(1, "로그인 성공", new LoginResponse(tokenInfo.accessToken()));
     }
 
-    @DeleteMapping("/logout")
+    @PostMapping("/logout")
     public ResponseEntity<Void> logout(
         @AuthUser final Long userId,
         @CookieValue(value = REFRESH_TOKEN_COOKIE_KEY, defaultValue = EMPTY_REFRESH_TOKEN) final String refreshToken,
