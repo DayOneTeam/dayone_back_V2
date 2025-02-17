@@ -5,6 +5,8 @@ import dayone.dayone.book.exception.BookErrorCode;
 import dayone.dayone.book.exception.BookException;
 import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.booklog.entity.repository.BookLogRepository;
+import dayone.dayone.booklog.exception.BookLogErrorCode;
+import dayone.dayone.booklog.exception.BookLogException;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
 import dayone.dayone.booklog.service.dto.BookLogDetailResponse;
 import dayone.dayone.booklog.service.dto.BookLogPaginationListResponse;
@@ -30,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -261,6 +264,70 @@ class BookLogServiceTest extends ServiceTest {
             // when
             // then
             assertThatThrownBy(() -> bookLogService.getWriteCount(notExistUserId))
+                .isInstanceOf(UserException.class)
+                .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
+        }
+    }
+
+    @DisplayName("bookLog 삭제")
+    @Nested
+    class DeleteBookLog {
+
+        @DisplayName("bookLog을 작성한 유저가 자신의 bookLog를 삭제한다.")
+        @Test
+        void deleteBookLog() {
+            // given
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
+
+            // when
+            bookLogService.delete(user.getId(), bookLog.getId());
+
+            // then
+            final Optional<BookLog> deleteBookLog = bookLogRepository.findById(bookLog.getId());
+            assertThat(deleteBookLog).isEmpty();
+        }
+
+        @DisplayName("작성자가 아닌 유저가 bookLog를 삭제하면 예외가 발생한다.")
+        @Test
+        void deleteBookLogWithNotWriter() {
+            // given
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User anotherUser = testUserFactory.createUser("another@test.com", "another", "다른 유저");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
+
+            // when, then
+            assertThatThrownBy(() -> bookLogService.delete(anotherUser.getId(), bookLog.getId()))
+                .isInstanceOf(BookLogException.class)
+                .hasMessage(BookLogErrorCode.NOT_BOOK_LOG_WRITER.getMessage());
+        }
+
+        @DisplayName("존재하지 않는 bookLog를 삭제하면 예외가 발생한다.")
+        @Test
+        void deleteBookLogWithNotExistBookLog() {
+            // given
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final long notExistBookLogId = Long.MAX_VALUE;
+
+            // when, then
+            assertThatThrownBy(() -> bookLogService.delete(user.getId(), notExistBookLogId))
+                .isInstanceOf(BookLogException.class)
+                .hasMessage(BookLogErrorCode.NOT_EXIST_BOOK_LOG.getMessage());
+        }
+
+        @DisplayName("존재하지 않는 유저가 bookLog를 삭제하면 예외가 발생한다.")
+        @Test
+        void deleteBookLogWithNotExistUser() {
+            // given
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
+            final long notExistUserId = Long.MAX_VALUE;
+
+            // when, then
+            assertThatThrownBy(() -> bookLogService.delete(notExistUserId, bookLog.getId()))
                 .isInstanceOf(UserException.class)
                 .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
         }

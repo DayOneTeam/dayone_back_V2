@@ -24,9 +24,11 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
@@ -489,6 +491,34 @@ public class BookLogDocsTest extends DocsTest {
                         fieldWithPath("code").type(JsonFieldType.NUMBER).description("실패 코드 ex) 4003"),
                         fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메세지 ex) 로그인 되지 않은 유저입니다."),
                         fieldWithPath("data").type(null).description("null")
+                    )
+                ));
+        }
+    }
+
+    @DisplayName("bookLog 삭제")
+    @Nested
+    class DeleteBookLog {
+        @DisplayName("유저가 자신의 bookLog를 삭제한다.")
+        @Test
+        void deleteBookLog() throws Exception {
+            // given
+            willDoNothing().given(bookLogService).delete(anyLong(), anyLong());
+            successAuth();
+            // when
+            final ResultActions result = mockMvc.perform(delete("/api/v1/book-logs/{book_log_id}", 1L, 1L)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"));
+
+            // then
+            result.andExpect(status().isNoContent())
+                .andDo(document("delete-book-log",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    requestHeaders(
+                        headerWithName("Authorization").description("인증된 사용자의 accessToken")
+                    ),
+                    pathParameters(
+                        parameterWithName("book_log_id").description("삭제할 book log의 id")
                     )
                 ));
         }
