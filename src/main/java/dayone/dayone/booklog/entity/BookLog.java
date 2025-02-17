@@ -73,6 +73,10 @@ public class BookLog extends BaseEntity {
         return new BookLog(null, new Passage(passage), new Comment(comment), book, user);
     }
 
+    public boolean isNotWriter(final Long userId) {
+        return !userId.equals(this.user.getId());
+    }
+
     public String getPassage() {
         return this.passage.getValue();
     }
