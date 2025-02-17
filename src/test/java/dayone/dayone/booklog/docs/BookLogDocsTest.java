@@ -244,6 +244,7 @@ public class BookLogDocsTest extends DocsTest {
                 "책 표지",
                 "유저 이름",
                 "유저 프로필",
+                false,
                 LocalDateTime.now());
             given(bookLogService.getBookLogById(anyLong()))
                 .willReturn(response);
@@ -275,6 +276,7 @@ public class BookLogDocsTest extends DocsTest {
                         fieldWithPath("data.like_count").description("책 로그의 좋아요 수"),
                         fieldWithPath("data.user_name").description("유저 이름"),
                         fieldWithPath("data.profile_image").description("유저 프로필"),
+                        fieldWithPath("data.is_like").description("책 로그의 좋아요 여부"),
                         fieldWithPath("data.created_at").description("책 로그 생성 시간")
                     )
                 ));

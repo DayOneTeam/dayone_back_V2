@@ -19,10 +19,12 @@ public record BookLogDetailResponse(
     String userName,
     @JsonProperty("profile_image")
     String profileImage,
+    @JsonProperty("is_like")
+    boolean isLike,
     @JsonProperty("created_at")
     LocalDateTime createdAt
 ) {
-    public static BookLogDetailResponse of(final BookLog bookLog) {
+    public static BookLogDetailResponse of(final BookLog bookLog, final boolean isLike) {
         return new BookLogDetailResponse(bookLog.getId(),
             bookLog.getPassage(),
             bookLog.getComment(),
@@ -31,6 +33,7 @@ public record BookLogDetailResponse(
             bookLog.getBook().getThumbnail(),
             bookLog.getUser().getName(),
             bookLog.getUser().getProfileImage(),
+            isLike,
             bookLog.getCreatedAt());
     }
 }

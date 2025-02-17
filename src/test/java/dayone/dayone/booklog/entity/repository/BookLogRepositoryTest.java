@@ -69,13 +69,13 @@ class BookLogRepositoryTest extends RepositoryTest {
         bookLogRepository.saveAll(nBookLogWrittenNow);
 
         // when
-        final Slice<BookLog> result = bookLogRepository.findAllByIdLessThanOrderByCreatedAtDesc(11L, pageable);
+        final Slice<BookLogInfoWithIsLike> result = bookLogRepository.findAllByIdLessThanOrderByCreatedAtDesc(11L, pageable);
 
         // then
         SoftAssertions.assertSoftly(softAssertions -> {
             softAssertions.assertThat(result).hasSize(10);
-            softAssertions.assertThat(result.getContent().get(0).getId()).isEqualTo(10L);
-            softAssertions.assertThat(result.getContent().get(9).getId()).isEqualTo(1L);
+            softAssertions.assertThat(result.getContent().get(0).getBookLog().getId()).isEqualTo(10L);
+            softAssertions.assertThat(result.getContent().get(9).getBookLog().getId()).isEqualTo(1L);
         });
     }
 
