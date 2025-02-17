@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailAndPassword(final String email, final String password);
 
     @Query("""
-        SELECT distinct b.id as id, b.thumbnail as thumbnail, b.title as title, MAX(bl.createdAt) as recentlyCreatedAt
+        SELECT distinct b.id as id, b.thumbnail as thumbnail, b.title.value as title, MAX(bl.createdAt) as recentlyCreatedAt
         FROM Users u
         JOIN BookLog bl ON bl.user = u
         JOIN Book b ON bl.book = b
@@ -26,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<UserBookInfo> findUserBookInfo(@Param("userId") final Long userId);
 
     @Query("""
-        SELECT bl.id as id, bl.passage as passage, bl.comment as comment, bl.createdAt as createdAt
+        SELECT bl.id as id, bl.passage.value as passage, bl.comment.value as comment, bl.createdAt as createdAt
         FROM Users u
         JOIN BookLog bl ON bl.user = u
         WHERE u.id = :userId
