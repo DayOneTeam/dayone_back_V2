@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -24,6 +25,10 @@ public class BookService {
 
     @Transactional
     public Long create(final BookCreateRequest request) {
+        final Optional<Book> alreadySavedBook = bookRepository.findByIsbn(request.isbn());
+        if (alreadySavedBook.isPresent()) {
+            return alreadySavedBook.get().getId();
+        }
         Book book = Book.forSave(request.title(), request.author(), request.publisher(), request.thumbnail(), request.isbn());
         bookRepository.save(book);
         return book.getId();
