@@ -8,6 +8,7 @@ import dayone.dayone.booklog.common.DateFinder;
 import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.booklog.entity.BookLogs;
 import dayone.dayone.booklog.entity.repository.BookLogRepository;
+import dayone.dayone.booklog.entity.repository.dto.BookLogInfoWithIsLike;
 import dayone.dayone.booklog.exception.BookLogErrorCode;
 import dayone.dayone.booklog.exception.BookLogException;
 import dayone.dayone.booklog.service.dto.BookLogCreateRequest;
@@ -59,18 +60,18 @@ public class BookLogService {
 
         // 초기 요청인 경우
         if (cursor == -1L) {
-            final Slice<BookLog> bookLogs = bookLogRepository.findAllByOrderByCreatedAtDesc(pageable);
+            final Slice<BookLogInfoWithIsLike> bookLogs = bookLogRepository.findAllByOrderByCreatedAtDesc(pageable);
             return BookLogPaginationListResponse.of(bookLogs, bookLogs.hasNext());
         }
 
-        final Slice<BookLog> bookLogs = bookLogRepository.findAllByIdLessThanOrderByCreatedAtDesc(cursor, pageable);
+        final Slice<BookLogInfoWithIsLike> bookLogs = bookLogRepository.findAllByIdLessThanOrderByCreatedAtDesc(cursor, pageable);
         return BookLogPaginationListResponse.of(bookLogs, bookLogs.hasNext());
     }
 
     public BookLogDetailResponse getBookLogById(final Long bookLogId) {
-        final BookLog bookLog = bookLogRepository.findByIdWithUserAndBook(bookLogId)
+        final BookLogInfoWithIsLike bookLogInfo = bookLogRepository.findByIdWithUserAndBook(bookLogId)
             .orElseThrow(() -> new BookLogException(BookLogErrorCode.NOT_EXIST_BOOK_LOG));
-        return BookLogDetailResponse.of(bookLog);
+        return BookLogDetailResponse.of(bookLogInfo.getBookLog(), bookLogInfo.getIsLike());
     }
 
     public BookLogTop4Response getTop4BookLogs(final LocalDateTime now) {

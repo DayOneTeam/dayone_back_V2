@@ -167,6 +167,7 @@ class BookLogServiceTest extends ServiceTest {
                 softAssertions.assertThat(response.bookCover()).isEqualTo(book.getThumbnail());
                 softAssertions.assertThat(response.userName()).isEqualTo(user.getName());
                 softAssertions.assertThat(response.profileImage()).isEqualTo(user.getProfileImage());
+                softAssertions.assertThat(response.isLike()).isEqualTo(false);
                 softAssertions.assertThat(response.createdAt()).isEqualTo(bookLog.getCreatedAt());
             });
         }
