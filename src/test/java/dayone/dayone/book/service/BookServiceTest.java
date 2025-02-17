@@ -4,6 +4,8 @@ import dayone.dayone.book.entity.Book;
 import dayone.dayone.book.entity.repository.BookRepository;
 import dayone.dayone.book.service.dto.BookCreateRequest;
 import dayone.dayone.book.service.dto.BookSearchResponse;
+import dayone.dayone.fixture.TestBookFactory;
+import dayone.dayone.support.ServiceTest;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,10 +16,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
-class BookServiceTest {
+class BookServiceTest extends ServiceTest {
+
+    @Autowired
+    private TestBookFactory testBookFactory;
 
     @MockBean
     private ExternalBookSearch externalBookSearch;
@@ -80,5 +86,19 @@ class BookServiceTest {
             softly.assertThat(book.getThumbnail()).isEqualTo(bookCreateRequest.thumbnail());
             softly.assertThat(book.getIsbn()).isEqualTo(bookCreateRequest.isbn());
         });
+    }
+
+    @DisplayName("이미 존재하는 책이라면 해당 책의 id를 반환한다.")
+    @Test
+    void creatBookWithAlreadyExistedBook() {
+        // given
+        final Book alreadyExistedBook = testBookFactory.createBook("제목", "저자", "판매처");
+        final BookCreateRequest bookCreateRequest = new BookCreateRequest("제목", "저자", "판매처", "이미지", alreadyExistedBook.getIsbn());
+
+        // when
+        final Long savedBookId = bookService.create(bookCreateRequest);
+
+        // then
+        assertThat(savedBookId).isEqualTo(alreadyExistedBook.getId());
     }
 }
