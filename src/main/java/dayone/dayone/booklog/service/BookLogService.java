@@ -60,11 +60,11 @@ public class BookLogService {
 
         // 초기 요청인 경우
         if (cursor == -1L) {
-            final Slice<BookLog> bookLogs = bookLogRepository.findAllByOrderByCreatedAtDesc(pageable);
+            final Slice<BookLogInfoWithIsLike> bookLogs = bookLogRepository.findAllByOrderByCreatedAtDesc(pageable);
             return BookLogPaginationListResponse.of(bookLogs, bookLogs.hasNext());
         }
 
-        final Slice<BookLog> bookLogs = bookLogRepository.findAllByIdLessThanOrderByCreatedAtDesc(cursor, pageable);
+        final Slice<BookLogInfoWithIsLike> bookLogs = bookLogRepository.findAllByIdLessThanOrderByCreatedAtDesc(cursor, pageable);
         return BookLogPaginationListResponse.of(bookLogs, bookLogs.hasNext());
     }
 

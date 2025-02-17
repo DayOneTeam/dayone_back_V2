@@ -3,6 +3,7 @@ package dayone.dayone.booklog.entity.repository;
 import dayone.dayone.book.entity.Book;
 import dayone.dayone.book.entity.repository.BookRepository;
 import dayone.dayone.booklog.entity.BookLog;
+import dayone.dayone.booklog.entity.repository.dto.BookLogInfoWithIsLike;
 import dayone.dayone.booklog.entity.value.Comment;
 import dayone.dayone.booklog.entity.value.Passage;
 import dayone.dayone.support.DateConstant;
@@ -45,13 +46,13 @@ class BookLogRepositoryTest extends RepositoryTest {
         bookLogRepository.saveAll(nBookLogWrittenNow);
 
         // when
-        final Slice<BookLog> result = bookLogRepository.findAllByOrderByCreatedAtDesc(pageable);
+        final Slice<BookLogInfoWithIsLike> result = bookLogRepository.findAllByOrderByCreatedAtDesc(pageable);
 
         // then
         SoftAssertions.assertSoftly(softAssertions -> {
             softAssertions.assertThat(result).hasSize(10);
-            softAssertions.assertThat(result.getContent().get(0).getId()).isEqualTo(20L);
-            softAssertions.assertThat(result.getContent().get(9).getId()).isEqualTo(11L);
+            softAssertions.assertThat(result.getContent().get(0).getBookLog().getId()).isEqualTo(20L);
+            softAssertions.assertThat(result.getContent().get(9).getBookLog().getId()).isEqualTo(11L);
         });
     }
 

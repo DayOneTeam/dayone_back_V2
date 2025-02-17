@@ -1,7 +1,7 @@
 package dayone.dayone.booklog.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dayone.dayone.booklog.entity.BookLog;
+import dayone.dayone.booklog.entity.repository.dto.BookLogInfoWithIsLike;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
@@ -14,13 +14,13 @@ public record BookLogPaginationListResponse(
     @JsonProperty("next_cursor")
     long nextCursor
 ) {
-    public static BookLogPaginationListResponse of(final Slice<BookLog> bookLogs, final Boolean next) {
+    public static BookLogPaginationListResponse of(final Slice<BookLogInfoWithIsLike> bookLogs, final Boolean next) {
         final List<BookLogResponse> bookLogResponses = bookLogs.stream()
             .map(BookLogResponse::from)
             .collect(Collectors.toList());
 
         if (next) {
-            final long nextCursor = bookLogs.getContent().get(bookLogs.getSize() - 1).getId();
+            final long nextCursor = bookLogs.getContent().get(bookLogs.getSize() - 1).getBookLog().getId();
             return new BookLogPaginationListResponse(bookLogResponses, true, nextCursor);
         }
         return new BookLogPaginationListResponse(bookLogResponses, next, -1);

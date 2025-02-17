@@ -1,6 +1,7 @@
 package dayone.dayone.booklog.entity.repository;
 
 import dayone.dayone.booklog.entity.BookLog;
+import dayone.dayone.booklog.entity.repository.dto.BookLogInfoWithIsLike;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,23 +26,25 @@ public interface BookLogRepository extends JpaRepository<BookLog, Long> {
     Optional<BookLogInfoWithIsLike> findByIdWithUserAndBook(Long id);
 
     @Query("""
-        SELECT bl
+        SELECT bl as bookLog, CASE WHEN bll.id IS NOT NULL THEN true ELSE false END AS isLike
         FROM BookLog bl
         JOIN FETCH bl.user
         JOIN FETCH bl.book
+        LEFT JOIN BookLogLike bll ON bll.bookLogId = bl.id AND bll.userId = bl.user.id
         ORDER BY bl.createdAt DESC
         """)
-    Slice<BookLog> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    Slice<BookLogInfoWithIsLike> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     @Query("""
-        SELECT bl
+        SELECT bl as bookLog, CASE WHEN bll.id IS NOT NULL THEN true ELSE false END AS isLike
         FROM BookLog bl
         JOIN FETCH bl.user
         JOIN FETCH bl.book
+        LEFT JOIN BookLogLike bll ON bll.bookLogId = bl.id AND bll.userId = bl.user.id
         WHERE bl.id < :id
         ORDER BY bl.createdAt DESC
         """)
-    Slice<BookLog> findAllByIdLessThanOrderByCreatedAtDesc(Long id, Pageable pageable);
+    Slice<BookLogInfoWithIsLike> findAllByIdLessThanOrderByCreatedAtDesc(Long id, Pageable pageable);
 
     @Query("""
         UPDATE BookLog bl
