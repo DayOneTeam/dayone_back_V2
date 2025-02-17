@@ -9,7 +9,8 @@ public enum BookLogErrorCode implements ErrorCode {
     COMMENT_LENGTH_OVER(HttpStatus.BAD_REQUEST, 2, "책에 대한 자신의 생각은 5000자를 넘길 수 없습니다."),
     PASSAGE_BLANK_AND_NULL(HttpStatus.BAD_REQUEST, 3, "구절은 비어있어나 null 일 수 없습니다."),
     PASSAGE_LENGTH_OVER(HttpStatus.BAD_REQUEST, 4, "구절은 1000자를 넘길 수 없습니다."),
-    NOT_EXIST_BOOK_LOG(HttpStatus.NOT_FOUND, 5, "존재하지 않는 책 로그입니다.");
+    NOT_EXIST_BOOK_LOG(HttpStatus.BAD_REQUEST, 5, "존재하지 않는 책 로그입니다."),
+    NOT_BOOK_LOG_WRITER(HttpStatus.BAD_REQUEST, 6, "책 로그 작성자가 아닙니다.");
 
     private final HttpStatus httpStatus;
     private final int code;

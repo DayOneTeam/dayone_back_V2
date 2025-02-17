@@ -105,4 +105,19 @@ public class BookLogService {
 
         return new BookLogWriteCountResponse(writingCount);
     }
+
+    @Transactional
+    public void delete(final Long userId, final Long bookLogId) {
+        userRepository.findById(userId)
+            .orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER));
+
+        final BookLog bookLog = bookLogRepository.findById(bookLogId)
+            .orElseThrow(() -> new BookLogException(BookLogErrorCode.NOT_EXIST_BOOK_LOG));
+
+        if (bookLog.isNotWriter(userId)) {
+            throw new BookLogException(BookLogErrorCode.NOT_BOOK_LOG_WRITER);
+        }
+
+        bookLogRepository.delete(bookLog);
+    }
 }
