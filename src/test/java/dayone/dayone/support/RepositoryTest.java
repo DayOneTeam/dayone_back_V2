@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-public class RepositoryTest {
+public class RepositoryTest extends DbBaseTest {
 
     @Autowired
     private DataCleaner dataCleaner;
