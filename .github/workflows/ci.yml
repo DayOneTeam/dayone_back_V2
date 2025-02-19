@@ -11,15 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0.33
-        ports:
-          - 3309:3306
-        env:
-          MYSQL_DATABASE: dayone
-          MYSQL_ROOT_PASSWORD: mysql
-
     steps:
       - name: Pull Repository
         uses: actions/checkout@v3
