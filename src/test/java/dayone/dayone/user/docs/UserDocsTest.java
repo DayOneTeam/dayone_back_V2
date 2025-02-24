@@ -5,20 +5,27 @@ import dayone.dayone.user.service.dto.UserInfoResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UserDocsTest extends DocsTest {
@@ -76,5 +83,44 @@ public class UserDocsTest extends DocsTest {
                     fieldWithPath("data").type(null).description("null")
                 )
             ));
+    }
+
+    @DisplayName("사용자의 프로필 이미지를 업데이트한다.")
+    @Test
+    void updateUserProfileImage() throws Exception {
+        // given
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "profile.png",
+            "image/png",
+            "dummy image content".getBytes()
+        );
+        successAuth();
+        willDoNothing().given(userService).updateUserProfileImage(anyLong(), any());
+
+        // when
+        final ResultActions result = mockMvc.perform(multipart("/api/v1/users/update-profile-image")
+            .file(file)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken")
+            .with(request -> {
+                request.setMethod("PATCH");
+                request.setContentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+                return request;
+            }));
+
+        // then
+        result.andExpect(status().isNoContent())
+            .andDo(document("update-user-profile-image",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                requestHeaders(
+                    headerWithName("Authorization").description("인증된 사용자의 accessToken"),
+                    headerWithName("Content-Type").description("multipart/form-data 요청")
+                ),
+                requestParts(
+                    partWithName("file").description("업로드할 프로필 이미지 파일")
+                )
+            ));
+
     }
 }
