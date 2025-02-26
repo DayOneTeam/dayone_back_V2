@@ -43,4 +43,8 @@ public class User extends BaseEntity {
     public static User forSave(final String email, final String password, final String name) {
         return new User(null, email, password, name, "기본 이미지");
     }
+
+    public void updateProfileImage(final String profileImage) {
+        this.profileImage = profileImage;
+    }
 }

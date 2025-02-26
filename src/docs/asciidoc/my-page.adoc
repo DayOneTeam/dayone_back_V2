@@ -81,3 +81,13 @@ include::{snippets}/read-user-book-log-count/http-response.adoc[]
 ==== 존재하지 않는 사용자가 유저의 book log 개수를 조회할 경우
 include::{snippets}/fail-read-user-book-log-count-with-unauthorized-user/response-fields.adoc[]
 include::{snippets}/fail-read-user-book-log-count-with-unauthorized-user/http-response.adoc[]
+
+== Update User Profile Image
+
+=== Request
+include::{snippets}/update-user-profile-image/request-headers.adoc[]
+include::{snippets}/update-user-profile-image/request-parts.adoc[]
+include::{snippets}/update-user-profile-image/http-request.adoc[]
+
+=== Response
+include::{snippets}/update-user-profile-image/http-response.adoc[]
