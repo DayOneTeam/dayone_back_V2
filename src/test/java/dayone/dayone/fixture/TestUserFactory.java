@@ -14,17 +14,17 @@ public class TestUserFactory {
     @Autowired
     private UserRepository userRepository;
 
-    public User createUser(final String email, final String password, final String name) {
-        final User user = User.forSave(email, password, name);
+    public User createUser(final String email, final String password, final String name, final int generation) {
+        final User user = User.forSave(email, password, name, generation);
         userRepository.save(user);
         return user;
     }
 
-    public List<User> createNUser(final int cnt, final String email, final String password, final String name) {
+    public List<User> createNUser(final int cnt, final String email, final String password, final String name, final int generation) {
         List<User> users = new ArrayList<>();
 
         for (int i = 0; i < cnt; i++) {
-            final User user = User.forSave(email + i, password, name + i);
+            final User user = User.forSave(email + i, password, name + i, generation);
             userRepository.save(user);
             users.add(user);
         }

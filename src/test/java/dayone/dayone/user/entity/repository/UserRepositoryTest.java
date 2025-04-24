@@ -32,7 +32,7 @@ class UserRepositoryTest extends RepositoryTest {
     @Test
     void getUserBookInfo() {
         // given
-        final User user = userRepository.save(User.forSave("test@test.com", "password", "이름"));
+        final User user = userRepository.save(User.forSave("test@test.com", "password", "이름", 1));
         final List<Book> books = createNBook(10);
         final BookLog bookLogWrittenByUser1 = bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", books.get(0), user));
         final BookLog bookLogWrittenByUser2 = bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", books.get(1), user));
@@ -65,8 +65,8 @@ class UserRepositoryTest extends RepositoryTest {
     @Test
     void getUserBookLogInfo() {
         // given
-        final User user = userRepository.save(User.forSave("test@test.com", "password", "이름"));
-        final User anotherUser = userRepository.save(User.forSave("test@test.com", "password", "이름"));
+        final User user = userRepository.save(User.forSave("test@test.com", "password", "이름", 1));
+        final User anotherUser = userRepository.save(User.forSave("test@test.com", "password", "이름",1));
 
         final Book book = bookRepository.save(Book.forSave("책", "작가", "출판사", "이미지", "ISBN"));
 

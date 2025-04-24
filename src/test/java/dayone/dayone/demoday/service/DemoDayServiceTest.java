@@ -45,7 +45,7 @@ class DemoDayServiceTest extends ServiceTest {
         @Test
         void createDemoDay() {
             // given
-            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final User user = testUserFactory.createUser("test@test.com", "test", "test", 1);
             final LocalDate today = LocalDate.now();
             final LocalDate tomorrow = today.plusDays(1);
             final DemoDayCreateRequest request = new DemoDayCreateRequest("title", "description", "thumbnail", tomorrow, LocalTime.now(), 1, "location");

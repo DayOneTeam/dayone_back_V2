@@ -65,7 +65,7 @@ class BookLogServiceTest extends ServiceTest {
         void createBookLog() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final BookLogCreateRequest request = new BookLogCreateRequest(book.getId(), "의미있는 구절", "내가 느낀 감정");
 
             // when
@@ -84,7 +84,7 @@ class BookLogServiceTest extends ServiceTest {
         void createBookLogOnNotExistBook() {
             // given
             final long wrongBookId = Long.MAX_VALUE;
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final BookLogCreateRequest request = new BookLogCreateRequest(wrongBookId, "의미있는 구절", "내가 느낀 감정");
 
             // when, then
@@ -118,7 +118,7 @@ class BookLogServiceTest extends ServiceTest {
         void readBookLogsByCursor(long cursor, int expectSize, int firstId, int lastId, long nextCursor, boolean next) {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final List<BookLog> bookLogs = testBookLogFactory.createNBookLog(20, book, user);
 
             // when
@@ -151,7 +151,7 @@ class BookLogServiceTest extends ServiceTest {
         void readBookLogDetail() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final BookLog bookLog = BookLog.forSave("의미있는 구절", "내가 느낀 감정", book, user);
             bookLogRepository.save(bookLog);
 
@@ -180,7 +180,7 @@ class BookLogServiceTest extends ServiceTest {
         void getMostLikedAndWrittenRecentlyBookLogsInWeek() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final List<BookLog> bookLogWrittenThisWeek = testBookLogFactory.createBookLogWrittenThisWeek(7, book, user);
             final List<BookLog> bookLogWrittenLastWeek = testBookLogFactory.createBookLogWrittenLastWeek(7, book, user);
 
@@ -205,7 +205,7 @@ class BookLogServiceTest extends ServiceTest {
         void getUserBookLogActiveInWeek() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final List<BookLog> bookLogWrittenThisWeek = testBookLogFactory.createBookLogWrittenThisWeek(4, book, user);
 
             // when
@@ -239,8 +239,8 @@ class BookLogServiceTest extends ServiceTest {
         @Test
         void getBookLogWriteCount() {
             // given
-            final User user = testUserFactory.createUser("test1@test.com", "password1", "이름1");
-            final User anotherUser = testUserFactory.createUser("test2@test.com", "password2", "이름2");
+            final User user = testUserFactory.createUser("test1@test.com", "password1", "이름1", 1);
+            final User anotherUser = testUserFactory.createUser("test2@test.com", "password2", "이름2", 1);
 
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
 
@@ -278,7 +278,7 @@ class BookLogServiceTest extends ServiceTest {
         void deleteBookLog() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
 
             // when
@@ -294,8 +294,8 @@ class BookLogServiceTest extends ServiceTest {
         void deleteBookLogWithNotWriter() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
-            final User anotherUser = testUserFactory.createUser("another@test.com", "another", "다른 유저");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
+            final User anotherUser = testUserFactory.createUser("another@test.com", "another", "다른 유저", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
 
             // when, then
@@ -308,7 +308,7 @@ class BookLogServiceTest extends ServiceTest {
         @Test
         void deleteBookLogWithNotExistBookLog() {
             // given
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final long notExistBookLogId = Long.MAX_VALUE;
 
             // when, then
@@ -322,7 +322,7 @@ class BookLogServiceTest extends ServiceTest {
         void deleteBookLogWithNotExistUser() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
             final long notExistUserId = Long.MAX_VALUE;
 

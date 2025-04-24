@@ -55,7 +55,7 @@ class UserBookServiceTest extends ServiceTest {
         @ParameterizedTest
         void readUserBooks(List<Integer> bookIds, List<Long> exceptBookIds) {
             // given
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final List<Book> books = testBookFactory.createNBook(10, "책", "작가", "출판사");
 
             bookIds.forEach(bookId -> {
@@ -99,7 +99,7 @@ class UserBookServiceTest extends ServiceTest {
         @Test
         void readUserBookLogs() {
             // given
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
             final BookLog bookLog1 = testBookLogFactory.createBookLog(book, user);
             final BookLog bookLog2 = testBookLogFactory.createBookLog(book, user);
@@ -139,7 +139,7 @@ class UserBookServiceTest extends ServiceTest {
         @Test
         void readUserInfo() {
             // given
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
 
             // when
             final UserInfoResponse result = userService.getUserInfo(user.getId());
