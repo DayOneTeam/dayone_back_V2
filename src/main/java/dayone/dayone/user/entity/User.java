@@ -57,4 +57,8 @@ public class User extends BaseEntity {
     public void updateProfileImage(final String profileImage) {
         this.profileImage = profileImage;
     }
+
+    public boolean isAdmin() {
+        return this.role == Role.ADMIN;
+    }
 }

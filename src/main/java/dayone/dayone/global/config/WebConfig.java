@@ -1,7 +1,8 @@
 package dayone.dayone.global.config;
 
 import dayone.dayone.auth.ui.argumentresolver.AuthArgumentResolver;
-import dayone.dayone.auth.ui.interceptor.AuthInterceptor;
+import dayone.dayone.auth.ui.interceptor.AuthenticationInterceptor;
+import dayone.dayone.auth.ui.interceptor.AuthorizationInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -14,13 +15,20 @@ import java.util.List;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private final AuthInterceptor authInterceptor;
+    private final AuthenticationInterceptor authenticationInterceptor;
+    private final AuthorizationInterceptor authorizationInterceptor;
     private final AuthArgumentResolver authArgumentResolver;
 
     @Override
     public void addInterceptors(final org.springframework.web.servlet.config.annotation.InterceptorRegistry registry) {
-        registry.addInterceptor(authInterceptor)
+        registry.addInterceptor(authenticationInterceptor)
             .addPathPatterns("/api/**")
+            .excludePathPatterns("/api/v1/admin/**")
+            .excludePathPatterns("/api/v1/auth/login")
+            .excludePathPatterns("/api/v1/auth/reissue-token");
+
+        registry.addInterceptor(authorizationInterceptor)
+            .addPathPatterns("/api/v1/admin/**")
             .excludePathPatterns("/api/v1/auth/login")
             .excludePathPatterns("/api/v1/auth/reissue-token");
     }
