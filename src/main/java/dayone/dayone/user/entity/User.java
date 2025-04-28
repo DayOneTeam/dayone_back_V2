@@ -1,6 +1,9 @@
 package dayone.dayone.user.entity;
 
 import dayone.dayone.global.entity.BaseEntity;
+import dayone.dayone.user.entity.value.Role;
+import dayone.dayone.user.entity.value.RoleConverter;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,20 +34,24 @@ public class User extends BaseEntity {
 
     private int generation;
 
-    public User(final Long id, final String email, final String password, final String name, final int generation, final String profileImage) {
+    @Convert(converter = RoleConverter.class)
+    private Role role;
+
+    public User(final Long id, final String email, final String password, final String name, final int generation, final String profileImage, final Role role) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
         this.profileImage = profileImage;
         this.generation = generation;
+        this.role = role;
         this.createdAt = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
         this.updatedAt = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
     }
 
     // TODO : 이미지는 추후에 처리하기
     public static User forSave(final String email, final String password, final String name, final int generation) {
-        return new User(null, email, password, name, generation, "기본 이미지");
+        return new User(null, email, password, name, generation, "기본 이미지", Role.MEMBER);
     }
 
     public void updateProfileImage(final String profileImage) {
