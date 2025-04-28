@@ -57,7 +57,6 @@ public class BookLog extends BaseEntity {
         this.createdAt = createdAt;
     }
 
-    // TODO : 추후에 user 객체도 고려하기
     public BookLog(final Long id, final Passage passage, final Comment comment, final Book book, final User user) {
         this.id = id;
         this.passage = passage;
