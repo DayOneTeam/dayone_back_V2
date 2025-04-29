@@ -17,10 +17,10 @@ public class RoleConverter implements AttributeConverter<Role, String> {
     }
 
     @Override
-    public Role convertToEntityAttribute(String s) {
-        if (s == null) {
+    public Role convertToEntityAttribute(String roleType) {
+        if (roleType == null) {
             throw new UserException(UserErrorCode.ROLE_BLANK_AND_NULL);
         }
-        return Role.from(s);
+        return Role.from(roleType);
     }
 }
