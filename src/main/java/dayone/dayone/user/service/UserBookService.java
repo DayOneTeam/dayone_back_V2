@@ -9,11 +9,11 @@ import dayone.dayone.user.exception.UserException;
 import dayone.dayone.user.service.dto.UserBookListResponse;
 import dayone.dayone.user.service.dto.UserBookLogCountInWeekResponse;
 import dayone.dayone.user.service.dto.UserBookLogListResponse;
+import dayone.dayone.user.service.dto.UsersBookLogCountRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,11 +40,11 @@ public class UserBookService {
         return UserBookLogListResponse.from(userBookLogInfos);
     }
 
-    public UserBookLogCountInWeekResponse getUserBookLogCountInWeek(final int generation, final String start, final String end) {
-        final LocalDateTime startDate = LocalDate.parse(start).atStartOfDay();
-        final LocalDateTime endDate = LocalDate.parse(end).atTime(23, 59, 59);
+    public UserBookLogCountInWeekResponse getUserBookLogCountInWeek(final UsersBookLogCountRequest request) {
+        final LocalDateTime startDate = request.startDate().atStartOfDay();
+        final LocalDateTime endDate = request.endDate().plusDays(1).atStartOfDay();
 
-        final List<UserBookLogCountInfo> userBookLogCountInfos = userRepository.findByGenerationAndStartDateAndEndDate(generation, startDate, endDate);
+        final List<UserBookLogCountInfo> userBookLogCountInfos = userRepository.findByGenerationAndStartDateAndEndDate(request.generation(), startDate, endDate);
         return UserBookLogCountInWeekResponse.from(userBookLogCountInfos);
     }
 }

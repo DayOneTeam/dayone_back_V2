@@ -16,6 +16,7 @@ import dayone.dayone.user.service.dto.UserBookLogListResponse;
 import dayone.dayone.user.service.dto.UserBookLogResponse;
 import dayone.dayone.user.service.dto.UserBookResponse;
 import dayone.dayone.user.service.dto.UserInfoResponse;
+import dayone.dayone.user.service.dto.UsersBookLogCountRequest;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -187,8 +188,9 @@ class UserBookServiceTest extends ServiceTest {
             // when
             final String startDate = DateConstant.NOW.minusDays(1).toLocalDate().toString();
             final String endDate = DateConstant.NOW.plusDays(1).toLocalDate().toString();
+            final UsersBookLogCountRequest request = UsersBookLogCountRequest.of(user.getGeneration(), startDate, endDate);
 
-            final UserBookLogCountInWeekResponse response = userBookService.getUserBookLogCountInWeek(user.getGeneration(), startDate, endDate);
+            final UserBookLogCountInWeekResponse response = userBookService.getUserBookLogCountInWeek(request);
 
             // then
             SoftAssertions.assertSoftly(softAssertions -> {

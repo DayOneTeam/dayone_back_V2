@@ -11,8 +11,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -35,7 +34,7 @@ public class UserBookLogAdminDocsTest extends DocsTest {
         // given
         final UserBookLogCountInWeekResponse response = new UserBookLogCountInWeekResponse(List.of(new UserBookLogCountResponse("회원1", 4), new UserBookLogCountResponse("회원2", 2)));
 
-        given(userBookService.getUserBookLogCountInWeek(anyInt(), anyString(), anyString()))
+        given(userBookService.getUserBookLogCountInWeek(any()))
             .willReturn(response);
         successAuthAdmin();
 
