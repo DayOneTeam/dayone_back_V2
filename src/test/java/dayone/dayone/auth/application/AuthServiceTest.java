@@ -60,7 +60,7 @@ class AuthServiceTest extends ServiceTest {
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
             AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
 
-            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final User user = testUserFactory.createUser("test@test.com", "test", "test", 1);
             final LoginRequest loginRequest = new LoginRequest(user.getEmail(), user.getPassword());
 
             // when
@@ -85,7 +85,7 @@ class AuthServiceTest extends ServiceTest {
             // given
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
             AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
-            testUserFactory.createUser("test@test.com", "test", "test");
+            testUserFactory.createUser("test@test.com", "test", "test", 1);
 
             // when
             // then
@@ -105,7 +105,7 @@ class AuthServiceTest extends ServiceTest {
         @Test
         void failLoginWithAlreadyLoginedUser() {
             // given
-            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final User user = testUserFactory.createUser("test@test.com", "test", "test", 1);
             testAuthTokenFactory.createAuthToken(user.getId(), "refreshToken");
             final LoginRequest wrongLoginRequest = new LoginRequest(user.getEmail(), user.getPassword());
 
@@ -124,7 +124,7 @@ class AuthServiceTest extends ServiceTest {
         @Test
         void deleteToken() {
             // given
-            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final User user = testUserFactory.createUser("test@test.com", "test", "test", 1);
             final String existingRefreshToken = "refreshToken";
             testAuthTokenFactory.createAuthToken(user.getId(), existingRefreshToken);
 
@@ -140,7 +140,7 @@ class AuthServiceTest extends ServiceTest {
         @Test
         void deleteTokenWithNotExistUserOrWrongRefreshToken() {
             // given
-            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final User user = testUserFactory.createUser("test@test.com", "test", "test", 1);
             final String existingRefreshToken = "refreshToken";
             testAuthTokenFactory.createAuthToken(user.getId(), existingRefreshToken);
 
@@ -166,7 +166,7 @@ class AuthServiceTest extends ServiceTest {
             TokenProvider tokenProvider = new TokenProvider(10000, 100000, "secretCodeaesb231dbdsd");
             AuthService authService = new AuthService(tokenProvider, authTokenRepository, userRepository);
 
-            final User user = testUserFactory.createUser("test@test.com", "test", "test");
+            final User user = testUserFactory.createUser("test@test.com", "test", "test", 1);
             final String accessToken = tokenProvider.createAccessToken(user.getId());
 
             // when
@@ -199,7 +199,7 @@ class AuthServiceTest extends ServiceTest {
     @Test
     void reissueToken() {
         // given
-        final User user = testUserFactory.createUser("test@test.com", "test", "test");
+        final User user = testUserFactory.createUser("test@test.com", "test", "test", 1);
         final String existingRefreshToken = "refreshToken";
         testAuthTokenFactory.createAuthToken(user.getId(), existingRefreshToken);
 

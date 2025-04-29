@@ -6,7 +6,8 @@ import dayone.dayone.auth.exception.AuthErrorCode;
 import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.auth.ui.CookieProvider;
 import dayone.dayone.auth.ui.interceptor.AuthContext;
-import dayone.dayone.auth.ui.interceptor.AuthInterceptor;
+import dayone.dayone.auth.ui.interceptor.AuthenticationInterceptor;
+import dayone.dayone.auth.ui.interceptor.AuthorizationInterceptor;
 import dayone.dayone.book.service.BookService;
 import dayone.dayone.booklog.service.BookLogService;
 import dayone.dayone.bookloglike.service.BookLogLikeService;
@@ -53,7 +54,10 @@ public class DocsTest {
     public UserService userService;
 
     @MockBean
-    public AuthInterceptor authInterceptor;
+    public AuthenticationInterceptor authenticationInterceptor;
+
+    @MockBean
+    private AuthorizationInterceptor authorizationInterceptor;
 
     @MockBean
     public AuthContext authContext;
@@ -65,13 +69,18 @@ public class DocsTest {
     public ObjectMapper objectMapper;
 
     public void failAuth() throws Exception {
-        given(authInterceptor.preHandle(any(), any(), any()))
+        given(authenticationInterceptor.preHandle(any(), any(), any()))
             .willThrow(new AuthException(AuthErrorCode.NOT_LOGIN_USER));
         given(authContext.getMemberId()).willReturn(1L);
     }
 
     public void successAuth() throws Exception {
-        given(authInterceptor.preHandle(any(), any(), any()))
+        given(authenticationInterceptor.preHandle(any(), any(), any()))
+            .willReturn(true);
+    }
+
+    public void successAuthAdmin() throws Exception {
+        given(authorizationInterceptor.preHandle(any(), any(), any()))
             .willReturn(true);
     }
 }

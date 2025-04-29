@@ -12,4 +12,9 @@ public class CommonExceptionHandler {
     public ResponseEntity<CommonResponseDto<ExceptionResponse>> handleException(final CommonException exception) {
         return ExceptionResponse.toResponse(exception);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<CommonResponseDto<ExceptionResponse>> handleRuntimeException(final IllegalArgumentException exception) {
+        return ExceptionResponse.toResponse(exception);
+    }
 }

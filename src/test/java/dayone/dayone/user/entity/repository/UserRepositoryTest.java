@@ -7,12 +7,15 @@ import dayone.dayone.booklog.entity.repository.BookLogRepository;
 import dayone.dayone.support.RepositoryTest;
 import dayone.dayone.user.entity.User;
 import dayone.dayone.user.entity.repository.dto.UserBookInfo;
+import dayone.dayone.user.entity.repository.dto.UserBookLogCountInfo;
 import dayone.dayone.user.entity.repository.dto.UserBookLogInfo;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +35,7 @@ class UserRepositoryTest extends RepositoryTest {
     @Test
     void getUserBookInfo() {
         // given
-        final User user = userRepository.save(User.forSave("test@test.com", "password", "이름"));
+        final User user = userRepository.save(User.forSave("test@test.com", "password", "이름", 1));
         final List<Book> books = createNBook(10);
         final BookLog bookLogWrittenByUser1 = bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", books.get(0), user));
         final BookLog bookLogWrittenByUser2 = bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", books.get(1), user));
@@ -65,8 +68,8 @@ class UserRepositoryTest extends RepositoryTest {
     @Test
     void getUserBookLogInfo() {
         // given
-        final User user = userRepository.save(User.forSave("test@test.com", "password", "이름"));
-        final User anotherUser = userRepository.save(User.forSave("test@test.com", "password", "이름"));
+        final User user = userRepository.save(User.forSave("test@test.com", "password", "이름", 1));
+        final User anotherUser = userRepository.save(User.forSave("test@test.com", "password", "이름",1));
 
         final Book book = bookRepository.save(Book.forSave("책", "작가", "출판사", "이미지", "ISBN"));
 
@@ -82,6 +85,32 @@ class UserRepositoryTest extends RepositoryTest {
             softAssertions.assertThat(result).hasSize(2);
             softAssertions.assertThat(result.get(0).getId()).isEqualTo(bookLog2.getId());
             softAssertions.assertThat(result.get(1).getId()).isEqualTo(bookLog1.getId());
+        });
+    }
+
+    @DisplayName("특정 기수의 유저가 특정 기간에 작성한 bookLog의 개수를 조회한다.")
+    @Test
+    void getUsersBookLogCountWithGenerationAndStartDateAndEndDate() {
+        // given
+        final User user = userRepository.save(User.forSave("test1@test.com", "password1", "이름1", 1));
+        final User anotherUser = userRepository.save(User.forSave("test2@test.com", "password2", "이름2", 2));
+        final Book book = bookRepository.save(Book.forSave("책", "작가", "출판사", "이미지", "ISBN"));
+        bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", book, user));
+        bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", book, user));
+        bookLogRepository.save(BookLog.forSave("의미있는 구절", "내가 느낀 감정", book, anotherUser));
+
+        // when
+        final LocalDate date = LocalDate.now();
+        final LocalDateTime startDate = date.atStartOfDay();
+        final LocalDateTime endDate = date.atTime(23, 59, 59);
+
+        final List<UserBookLogCountInfo> result = userRepository.findByGenerationAndStartDateAndEndDate(1, startDate, endDate);
+
+        // then
+        SoftAssertions.assertSoftly(softAssertions -> {
+            softAssertions.assertThat(result).hasSize(1);
+            softAssertions.assertThat(result.get(0).getName()).isEqualTo(user.getName());
+            softAssertions.assertThat(result.get(0).getCount()).isEqualTo(2);
         });
     }
 }

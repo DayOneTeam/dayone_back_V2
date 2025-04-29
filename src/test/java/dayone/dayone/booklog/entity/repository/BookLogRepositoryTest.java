@@ -39,7 +39,7 @@ class BookLogRepositoryTest extends RepositoryTest {
         Pageable pageable = PageRequest.of(0, 10);
         final Book book = Book.forSave("책 제목", "작가", "출판사", "이미지", "ISBN");
         bookRepository.save(book);
-        final User user = User.forSave("test@test.com", "password", "이름");
+        final User user = User.forSave("test@test.com", "password", "이름", 1);
         userRepository.save(user);
 
         final List<BookLog> nBookLogWrittenNow = createNBookLogWrittenNow(20, book, user);
@@ -63,7 +63,7 @@ class BookLogRepositoryTest extends RepositoryTest {
         Pageable pageable = PageRequest.of(0, 10);
         final Book book = Book.forSave("책 제목", "작가", "출판사", "이미지", "ISBN");
         bookRepository.save(book);
-        final User user = User.forSave("test@test.com", "password", "이름");
+        final User user = User.forSave("test@test.com", "password", "이름", 1);
         userRepository.save(user);
 
         final List<BookLog> nBookLogWrittenNow = createNBookLogWrittenNow(10, book, user);
@@ -95,7 +95,7 @@ class BookLogRepositoryTest extends RepositoryTest {
         // given
         final Book book = Book.forSave("책 제목", "작가", "출판사", "이미지", "ISBN");
         bookRepository.save(book);
-        final User user = User.forSave("test@test.com", "password", "이름");
+        final User user = User.forSave("test@test.com", "password", "이름", 1);
         userRepository.save(user);
 
         final List<BookLog> bookLogsWrittenThisWeek = createNBookLogWrittenThisWeek(10, book, user);
@@ -144,7 +144,7 @@ class BookLogRepositoryTest extends RepositoryTest {
     @Test
     void getUserBookLogWriteInWeek() {
         // given
-        final User user = User.forSave("user1", "user1@naver.com", "password");
+        final User user = User.forSave("user1", "user1@naver.com", "password", 1);
         userRepository.save(user);
 
         final Book book = Book.forSave("책 제목", "책 저자", "책 ", "책 표지 사진", "책 isbn");

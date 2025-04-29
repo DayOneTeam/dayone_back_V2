@@ -2,15 +2,19 @@ package dayone.dayone.user.service;
 
 import dayone.dayone.user.entity.repository.UserRepository;
 import dayone.dayone.user.entity.repository.dto.UserBookInfo;
+import dayone.dayone.user.entity.repository.dto.UserBookLogCountInfo;
 import dayone.dayone.user.entity.repository.dto.UserBookLogInfo;
 import dayone.dayone.user.exception.UserErrorCode;
 import dayone.dayone.user.exception.UserException;
 import dayone.dayone.user.service.dto.UserBookListResponse;
+import dayone.dayone.user.service.dto.UserBookLogCountInWeekResponse;
 import dayone.dayone.user.service.dto.UserBookLogListResponse;
+import dayone.dayone.user.service.dto.UsersBookLogCountRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -34,5 +38,13 @@ public class UserBookService {
 
         List<UserBookLogInfo> userBookLogInfos = userRepository.findUserBookLogInfo(userId, bookId);
         return UserBookLogListResponse.from(userBookLogInfos);
+    }
+
+    public UserBookLogCountInWeekResponse getUserBookLogCountInWeek(final UsersBookLogCountRequest request) {
+        final LocalDateTime startDate = request.startDate().atStartOfDay();
+        final LocalDateTime endDate = request.endDate().plusDays(1).atStartOfDay();
+
+        final List<UserBookLogCountInfo> userBookLogCountInfos = userRepository.findByGenerationAndStartDateAndEndDate(request.generation(), startDate, endDate);
+        return UserBookLogCountInWeekResponse.from(userBookLogCountInfos);
     }
 }

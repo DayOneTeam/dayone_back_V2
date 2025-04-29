@@ -10,6 +10,7 @@ import dayone.dayone.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,5 +54,11 @@ public class TestBookLogFactory {
         }
         bookLogRepository.saveAll(bookLogs);
         return bookLogs;
+    }
+
+    public BookLog createBookLogSpecificDate(final Book book, final User user, final LocalDateTime date) {
+        final BookLog bookLog = new BookLog(null, new Passage("의미있는 구절"), new Comment("내가 느낀 감정"), book, user, 0, date);
+        bookLogRepository.save(bookLog);
+        return bookLog;
     }
 }

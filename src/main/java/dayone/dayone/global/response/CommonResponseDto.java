@@ -21,4 +21,8 @@ public record CommonResponseDto<D>(
     public static <D> CommonResponseDto<D> forFailure(final int code, final String message) {
         return new CommonResponseDto<>(code, message, null);
     }
+
+    public static <D> CommonResponseDto<D> forFailure(final String message) {
+        return new CommonResponseDto<>(-1, message, null);
+    }
 }

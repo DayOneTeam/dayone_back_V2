@@ -31,7 +31,7 @@ class UserServiceTest extends ServiceTest {
     @Test
     void updateUserProfileImage() throws IOException {
         // given
-        final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+        final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
 
         // when
         userService.updateUserProfileImage(user.getId(), new MockMultipartFile("test", "test".getBytes()));

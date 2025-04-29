@@ -60,7 +60,7 @@ class BookLogLikeServiceTest extends ServiceTest {
         void addLikeOnBookLog() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
 
             // when
@@ -93,7 +93,7 @@ class BookLogLikeServiceTest extends ServiceTest {
         void addLikeOnBookLogThatIsAlreadyLiked() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
             bookLogLikeService.addLike(bookLog.getId(), 1L);
 
@@ -109,7 +109,7 @@ class BookLogLikeServiceTest extends ServiceTest {
         void addLikeOnBookLogWithManyUserSimultaneously() throws InterruptedException {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final List<User> users = testUserFactory.createNUser(10, "test@test.com", "password", "이름");
+            final List<User> users = testUserFactory.createNUser(10, "test@test.com", "password", "이름", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, users.get(0));
 
             int threadCount = 10;
@@ -145,7 +145,7 @@ class BookLogLikeServiceTest extends ServiceTest {
         void deleteLikeOnBookLog() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
             final long userId = 1L;
             bookLogLikeService.addLike(bookLog.getId(), userId);
@@ -183,7 +183,7 @@ class BookLogLikeServiceTest extends ServiceTest {
         void deleteLikeOnBookLogThatIsNotLiked() {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final User user = testUserFactory.createUser("test@test.com", "password", "이름");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
             final long userId = 1L;
 
@@ -199,7 +199,7 @@ class BookLogLikeServiceTest extends ServiceTest {
         void deleteLikeOnBookLogWithManyUserSimultaneously() throws InterruptedException {
             // given
             final Book book = testBookFactory.createBook("책", "작가", "출판사");
-            final List<User> users = testUserFactory.createNUser(10, "test@test.com", "password", "이름");
+            final List<User> users = testUserFactory.createNUser(10, "test@test.com", "password", "이름", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, users.get(0));
             testBookLogLikeFactory.createNBookLogLike(bookLog.getId(), users);
 

@@ -9,6 +9,7 @@ import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.auth.token.TokenProvider;
 import dayone.dayone.user.entity.User;
 import dayone.dayone.user.entity.repository.UserRepository;
+import dayone.dayone.user.entity.value.Role;
 import dayone.dayone.user.exception.UserErrorCode;
 import dayone.dayone.user.exception.UserException;
 import io.jsonwebtoken.Claims;
@@ -49,6 +50,14 @@ public class AuthService {
             orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER));
 
         return userId;
+    }
+
+    public boolean validUserIsAdmin(final String accessToken) {
+        final Claims claims = tokenProvider.parseClaims(accessToken);
+        final Long userId = claims.get("memberId", Long.class);
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER))
+            .isAdmin();
     }
 
     @Transactional
