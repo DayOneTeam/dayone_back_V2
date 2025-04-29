@@ -5,11 +5,13 @@ import dayone.dayone.booklog.entity.BookLog;
 import dayone.dayone.fixture.TestBookFactory;
 import dayone.dayone.fixture.TestBookLogFactory;
 import dayone.dayone.fixture.TestUserFactory;
+import dayone.dayone.support.DateConstant;
 import dayone.dayone.support.ServiceTest;
 import dayone.dayone.user.entity.User;
 import dayone.dayone.user.exception.UserErrorCode;
 import dayone.dayone.user.exception.UserException;
 import dayone.dayone.user.service.dto.UserBookListResponse;
+import dayone.dayone.user.service.dto.UserBookLogCountInWeekResponse;
 import dayone.dayone.user.service.dto.UserBookLogListResponse;
 import dayone.dayone.user.service.dto.UserBookLogResponse;
 import dayone.dayone.user.service.dto.UserBookResponse;
@@ -162,6 +164,38 @@ class UserBookServiceTest extends ServiceTest {
             assertThatThrownBy(() -> userService.getUserInfo(notExistUserId))
                 .isInstanceOf(UserException.class)
                 .hasMessage(UserErrorCode.NOT_EXIST_USER.getMessage());
+        }
+    }
+
+    @DisplayName("특정 기수 유저의 특정 기간의 bookLog 작성 횟수 조회")
+    @Nested
+    class GetUserBookLogCountInPeriod {
+
+        @DisplayName("유저의 특정 기간의 bookLog 작성 횟수 조회한다.")
+        @Test
+        void getUserBookLogCountInPeriodWithNotExistGeneration() {
+            // given
+            final User user = testUserFactory.createUser("test1@test.com", "password", "이름1", 1);
+            final User AnotherUser = testUserFactory.createUser("test2@test.com", "password", "이름2", 2);
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+
+            testBookLogFactory.createBookLogSpecificDate(book, user, DateConstant.NOW);
+            testBookLogFactory.createBookLogSpecificDate(book, user, DateConstant.NOW.plusDays(1));
+            testBookLogFactory.createBookLogSpecificDate(book, user, DateConstant.NOW.plusDays(2));
+            testBookLogFactory.createBookLogSpecificDate(book, AnotherUser, DateConstant.NOW);
+
+            // when
+            final String startDate = DateConstant.NOW.minusDays(1).toLocalDate().toString();
+            final String endDate = DateConstant.NOW.plusDays(1).toLocalDate().toString();
+
+            final UserBookLogCountInWeekResponse response = userBookService.getUserBookLogCountInWeek(user.getGeneration(), startDate, endDate);
+
+            // then
+            SoftAssertions.assertSoftly(softAssertions -> {
+                softAssertions.assertThat(response.userBookLogCounts()).hasSize(1);
+                softAssertions.assertThat(response.userBookLogCounts().get(0).username()).isEqualTo(user.getName());
+                softAssertions.assertThat(response.userBookLogCounts().get(0).count()).isEqualTo(2);
+            });
         }
     }
 }

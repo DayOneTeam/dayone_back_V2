@@ -7,6 +7,7 @@ import dayone.dayone.auth.exception.AuthException;
 import dayone.dayone.auth.ui.CookieProvider;
 import dayone.dayone.auth.ui.interceptor.AuthContext;
 import dayone.dayone.auth.ui.interceptor.AuthenticationInterceptor;
+import dayone.dayone.auth.ui.interceptor.AuthorizationInterceptor;
 import dayone.dayone.book.service.BookService;
 import dayone.dayone.booklog.service.BookLogService;
 import dayone.dayone.bookloglike.service.BookLogLikeService;
@@ -56,6 +57,9 @@ public class DocsTest {
     public AuthenticationInterceptor authenticationInterceptor;
 
     @MockBean
+    private AuthorizationInterceptor authorizationInterceptor;
+
+    @MockBean
     public AuthContext authContext;
 
     @Autowired
@@ -72,6 +76,11 @@ public class DocsTest {
 
     public void successAuth() throws Exception {
         given(authenticationInterceptor.preHandle(any(), any(), any()))
+            .willReturn(true);
+    }
+
+    public void successAuthAdmin() throws Exception {
+        given(authorizationInterceptor.preHandle(any(), any(), any()))
             .willReturn(true);
     }
 }
