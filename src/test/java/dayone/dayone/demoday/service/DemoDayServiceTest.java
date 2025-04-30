@@ -1,7 +1,9 @@
 package dayone.dayone.demoday.service;
 
 import dayone.dayone.demoday.entity.DemoDay;
+import dayone.dayone.demoday.entity.Ticket;
 import dayone.dayone.demoday.entity.respository.DemoDayRepository;
+import dayone.dayone.demoday.entity.respository.TicketRepository;
 import dayone.dayone.demoday.entity.value.Status;
 import dayone.dayone.demoday.service.dto.DemoDayCreateRequest;
 import dayone.dayone.demoday.service.dto.DemoDayListResponse;
@@ -36,6 +38,9 @@ class DemoDayServiceTest extends ServiceTest {
     private DemoDayRepository demoDayRepository;
 
     @Autowired
+    private TicketRepository ticketRepository;
+
+    @Autowired
     private DemoDayService demoDayService;
 
     @DisplayName("데모데이 생성")
@@ -55,6 +60,7 @@ class DemoDayServiceTest extends ServiceTest {
 
             // then
             final DemoDay demoDay = demoDayRepository.findById(savedId).get();
+            final Ticket ticket = ticketRepository.findByDemoDayId(savedId).get();
 
             SoftAssertions.assertSoftly(softAssertions -> {
                 softAssertions.assertThat(demoDay.getTitle()).isEqualTo(request.title());
@@ -62,10 +68,10 @@ class DemoDayServiceTest extends ServiceTest {
                 softAssertions.assertThat(demoDay.getThumbnail()).isEqualTo(request.thumbnail());
                 softAssertions.assertThat(demoDay.getUserId()).isEqualTo(user.getId());
                 softAssertions.assertThat(demoDay.getLocation()).isEqualTo(request.location());
-                softAssertions.assertThat(demoDay.getCapacity().getValue()).isEqualTo(request.capacity());
                 softAssertions.assertThat(demoDay.getRegistrationDate().getStartRegistrationDate().toLocalDate()).isEqualTo(today);
                 softAssertions.assertThat(demoDay.getRegistrationDate().getEndRegistrationDate().toLocalDate()).isEqualTo(tomorrow);
                 softAssertions.assertThat(demoDay.getDemoDate().toLocalDate()).isEqualTo(tomorrow);
+                softAssertions.assertThat(ticket.getCapacity()).isEqualTo(request.capacity());
             });
         }
 

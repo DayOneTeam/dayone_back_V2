@@ -28,7 +28,6 @@ public class TestDemoDayFactory {
                 title,
                 description,
                 "이미지",
-                new Capacity(10),
                 new RegistrationDate(localDateTime, localDateTime.plusDays(1)),
                 new DemoDate(localDateTime.plusDays(1)),
                 "장소",

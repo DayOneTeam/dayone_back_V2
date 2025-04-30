@@ -1,7 +1,9 @@
 package dayone.dayone.demoday.service;
 
 import dayone.dayone.demoday.entity.DemoDay;
+import dayone.dayone.demoday.entity.Ticket;
 import dayone.dayone.demoday.entity.respository.DemoDayRepository;
+import dayone.dayone.demoday.entity.respository.TicketRepository;
 import dayone.dayone.demoday.entity.value.Status;
 import dayone.dayone.demoday.service.dto.DemoDayCreateRequest;
 import dayone.dayone.demoday.service.dto.DemoDayListResponse;
@@ -20,6 +22,7 @@ import java.util.List;
 public class DemoDayService {
 
     private final DemoDayRepository demoDayRepository;
+    private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -32,11 +35,12 @@ public class DemoDayService {
             request.thumbnail(),
             request.demoDate(),
             request.demoTime(),
-            request.capacity(),
             request.location(),
             userId);
 
         demoDayRepository.save(demoDay);
+        final Ticket ticket = Ticket.forSave(demoDay, request.capacity());
+        ticketRepository.save(ticket);
         return demoDay.getId();
     }
 

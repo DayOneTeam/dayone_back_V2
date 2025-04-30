@@ -1,6 +1,5 @@
 package dayone.dayone.demoday.entity;
 
-import dayone.dayone.demoday.entity.value.Capacity;
 import dayone.dayone.demoday.entity.value.DemoDate;
 import dayone.dayone.demoday.entity.value.RegistrationDate;
 import dayone.dayone.demoday.entity.value.Status;
@@ -37,9 +36,6 @@ public class DemoDay extends BaseEntity {
     private String thumbnail;
 
     @Embedded
-    private Capacity capacity;
-
-    @Embedded
     private RegistrationDate registrationDate;
 
     @Embedded
@@ -57,7 +53,6 @@ public class DemoDay extends BaseEntity {
         final String title,
         final String description,
         final String thumbnail,
-        final Capacity capacity,
         final RegistrationDate registrationDate,
         final DemoDate demoDate,
         final String location,
@@ -68,7 +63,6 @@ public class DemoDay extends BaseEntity {
         this.title = title;
         this.description = description;
         this.thumbnail = thumbnail;
-        this.capacity = capacity;
         this.registrationDate = registrationDate;
         this.demoDate = demoDate;
         this.location = location;
@@ -84,7 +78,6 @@ public class DemoDay extends BaseEntity {
         final String thumbnail,
         final LocalDate demoDate,
         final LocalTime demoTime,
-        final int capacity,
         final String location,
         final Long userId
     ) {
@@ -93,7 +86,6 @@ public class DemoDay extends BaseEntity {
             title,
             description,
             thumbnail,
-            new Capacity(capacity),
             RegistrationDate.of(demoDate, demoTime),
             DemoDate.of(demoDate, demoTime),
             location,
