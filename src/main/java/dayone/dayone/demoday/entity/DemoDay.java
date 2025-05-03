@@ -3,7 +3,10 @@ package dayone.dayone.demoday.entity;
 import dayone.dayone.demoday.entity.value.DemoDate;
 import dayone.dayone.demoday.entity.value.RegistrationDate;
 import dayone.dayone.demoday.entity.value.Status;
+import dayone.dayone.demoday.exception.DemoDayErrorCode;
+import dayone.dayone.demoday.exception.DemoDayException;
 import dayone.dayone.global.entity.BaseEntity;
+import dayone.dayone.user.entity.User;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -92,6 +96,26 @@ public class DemoDay extends BaseEntity {
             Status.OPEN,
             userId
         );
+    }
+
+    public DemoDayUser apply(final User user, final Ticket ticket) {
+        validateApply(user, ticket);
+        ticket.sold();
+        return new DemoDayUser(null, this.id, user.getId());
+    }
+
+    private void validateApply(final User user, final Ticket ticket) {
+        if (this.status == Status.CLOSED) {
+            throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_IS_CLOSED);
+        }
+
+        if (Objects.equals(user.getId(), this.userId)) {
+            throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_OWNER_NOT_APPLY_ONESELF);
+        }
+
+        if (ticket.getCapacity() == 0) {
+            throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_IS_FULL);
+        }
     }
 
     public LocalDateTime getDemoDate() {

@@ -46,6 +46,10 @@ public class Ticket extends BaseEntity {
         return new Ticket(null, demoDay, new Capacity(capacity));
     }
 
+    public void sold() {
+        this.capacity.minus();
+    }
+
     public int getCapacity() {
         return capacity.getValue();
     }

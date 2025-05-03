@@ -23,6 +23,10 @@ public class Capacity {
         this.value = value;
     }
 
+    public void minus() {
+        this.value--;
+    }
+
     private void validate(final int value) {
         if (value < CAPACITY_MIN_VALUE) {
             throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_CAPACITY_UNDER_ZERO);
