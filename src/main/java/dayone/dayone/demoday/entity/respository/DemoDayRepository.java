@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DemoDayRepository extends JpaRepository<DemoDay, Long> {
-    List<DemoDay> findAllByStatus(Status status);
+    List<DemoDay> findAllByStatus(final Status status);
 }

@@ -19,6 +19,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -31,6 +32,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -181,6 +183,35 @@ public class DemoDayDocsTest extends DocsTest {
                         fieldWithPath("code").type(JsonFieldType.NUMBER).description("실패 코드 ex) 4003"),
                         fieldWithPath("message").type(JsonFieldType.STRING).description("에러 메세지 ex) 로그인 되지 않은 유저입니다."),
                         fieldWithPath("data").type(null).description("null")
+                    )
+                ));
+        }
+    }
+
+    @DisplayName("데모데이 신청 요청")
+    @Nested
+    class ApplyDemoDay {
+        @DisplayName("데모데이를 신청한다.")
+        @Test
+        void applyDemoDay() throws Exception {
+            // given
+            willDoNothing().given(demoDayService).applyDemoDay(anyLong(), anyLong());
+            successAuth();
+
+            // when
+            final ResultActions result = mockMvc.perform(post("/api/v1/demo-days/{demoDayId}/apply", 1L)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"));
+
+            // then
+            result.andExpect(status().isOk())
+                .andDo(document("apply-demo-day",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    requestHeaders(
+                        headerWithName(HttpHeaders.AUTHORIZATION).description("인증된 사용자의 accessToken")
+                    ),
+                    pathParameters(
+                        parameterWithName("demoDayId").description("신청할 데모데이의 id")
                     )
                 ));
         }
