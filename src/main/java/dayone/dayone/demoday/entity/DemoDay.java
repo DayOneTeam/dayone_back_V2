@@ -1,10 +1,12 @@
 package dayone.dayone.demoday.entity;
 
-import dayone.dayone.demoday.entity.value.Capacity;
 import dayone.dayone.demoday.entity.value.DemoDate;
 import dayone.dayone.demoday.entity.value.RegistrationDate;
 import dayone.dayone.demoday.entity.value.Status;
+import dayone.dayone.demoday.exception.DemoDayErrorCode;
+import dayone.dayone.demoday.exception.DemoDayException;
 import dayone.dayone.global.entity.BaseEntity;
+import dayone.dayone.user.entity.User;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -35,9 +38,6 @@ public class DemoDay extends BaseEntity {
     private String description;
 
     private String thumbnail;
-
-    @Embedded
-    private Capacity capacity;
 
     @Embedded
     private RegistrationDate registrationDate;
@@ -57,7 +57,6 @@ public class DemoDay extends BaseEntity {
         final String title,
         final String description,
         final String thumbnail,
-        final Capacity capacity,
         final RegistrationDate registrationDate,
         final DemoDate demoDate,
         final String location,
@@ -68,7 +67,6 @@ public class DemoDay extends BaseEntity {
         this.title = title;
         this.description = description;
         this.thumbnail = thumbnail;
-        this.capacity = capacity;
         this.registrationDate = registrationDate;
         this.demoDate = demoDate;
         this.location = location;
@@ -84,7 +82,6 @@ public class DemoDay extends BaseEntity {
         final String thumbnail,
         final LocalDate demoDate,
         final LocalTime demoTime,
-        final int capacity,
         final String location,
         final Long userId
     ) {
@@ -93,13 +90,36 @@ public class DemoDay extends BaseEntity {
             title,
             description,
             thumbnail,
-            new Capacity(capacity),
             RegistrationDate.of(demoDate, demoTime),
             DemoDate.of(demoDate, demoTime),
             location,
             Status.OPEN,
             userId
         );
+    }
+
+    public DemoDayUser apply(final User user, final Ticket ticket, final DemoDayUsers demoDayUsers) {
+        validateApply(user, ticket, demoDayUsers);
+        ticket.sold();
+        return new DemoDayUser(null, this.id, user.getId());
+    }
+
+    private void validateApply(final User user, final Ticket ticket, final DemoDayUsers demoDayUsers) {
+        if (this.status == Status.CLOSED) {
+            throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_IS_CLOSED);
+        }
+
+        if (Objects.equals(user.getId(), this.userId)) {
+            throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_OWNER_NOT_APPLY_ONESELF);
+        }
+
+        if (ticket.getCapacity() == 0) {
+            throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_IS_FULL);
+        }
+
+        if (demoDayUsers.isAlreadyApply(user.getId())) {
+            throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_ALREADY_APPLY);
+        }
     }
 
     public LocalDateTime getDemoDate() {

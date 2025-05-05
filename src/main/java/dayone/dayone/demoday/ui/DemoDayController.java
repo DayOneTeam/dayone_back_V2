@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,5 +34,11 @@ public class DemoDayController {
     public CommonResponseDto<DemoDayListResponse> getDemoDays(@Param("status") final String status) {
         final DemoDayListResponse response = demoDayService.getDemoDaysWithStatus(status);
         return CommonResponseDto.forSuccess(1, "데모데이 조회 성공", response);
+    }
+
+    @PostMapping("/{demoDayId}/apply")
+    public CommonResponseDto<Void> applyDemoDay(@AuthUser final Long userId, @PathVariable("demoDayId") final Long demoDayId) {
+        demoDayService.applyDemoDay(userId, demoDayId);
+        return CommonResponseDto.forSuccess(1, "데모데이 신청 성공", null);
     }
 }

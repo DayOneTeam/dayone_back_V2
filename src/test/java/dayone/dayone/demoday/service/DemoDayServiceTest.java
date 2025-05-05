@@ -1,12 +1,17 @@
 package dayone.dayone.demoday.service;
 
 import dayone.dayone.demoday.entity.DemoDay;
+import dayone.dayone.demoday.entity.DemoDayUser;
+import dayone.dayone.demoday.entity.Ticket;
 import dayone.dayone.demoday.entity.respository.DemoDayRepository;
+import dayone.dayone.demoday.entity.respository.DemoDayUserRepository;
+import dayone.dayone.demoday.entity.respository.TicketRepository;
 import dayone.dayone.demoday.entity.value.Status;
 import dayone.dayone.demoday.service.dto.DemoDayCreateRequest;
 import dayone.dayone.demoday.service.dto.DemoDayListResponse;
 import dayone.dayone.demoday.service.dto.DemoDayResponse;
 import dayone.dayone.fixture.TestDemoDayFactory;
+import dayone.dayone.fixture.TestTicketFactory;
 import dayone.dayone.fixture.TestUserFactory;
 import dayone.dayone.support.ServiceTest;
 import dayone.dayone.user.entity.User;
@@ -21,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -33,7 +39,16 @@ class DemoDayServiceTest extends ServiceTest {
     private TestDemoDayFactory testDemoDayFactory;
 
     @Autowired
+    private TestTicketFactory testTicketFactory;
+
+    @Autowired
     private DemoDayRepository demoDayRepository;
+
+    @Autowired
+    private TicketRepository ticketRepository;
+
+    @Autowired
+    private DemoDayUserRepository demoDayUserRepository;
 
     @Autowired
     private DemoDayService demoDayService;
@@ -55,6 +70,7 @@ class DemoDayServiceTest extends ServiceTest {
 
             // then
             final DemoDay demoDay = demoDayRepository.findById(savedId).get();
+            final Ticket ticket = ticketRepository.findByDemoDayId(savedId).get();
 
             SoftAssertions.assertSoftly(softAssertions -> {
                 softAssertions.assertThat(demoDay.getTitle()).isEqualTo(request.title());
@@ -62,10 +78,10 @@ class DemoDayServiceTest extends ServiceTest {
                 softAssertions.assertThat(demoDay.getThumbnail()).isEqualTo(request.thumbnail());
                 softAssertions.assertThat(demoDay.getUserId()).isEqualTo(user.getId());
                 softAssertions.assertThat(demoDay.getLocation()).isEqualTo(request.location());
-                softAssertions.assertThat(demoDay.getCapacity().getValue()).isEqualTo(request.capacity());
                 softAssertions.assertThat(demoDay.getRegistrationDate().getStartRegistrationDate().toLocalDate()).isEqualTo(today);
                 softAssertions.assertThat(demoDay.getRegistrationDate().getEndRegistrationDate().toLocalDate()).isEqualTo(tomorrow);
                 softAssertions.assertThat(demoDay.getDemoDate().toLocalDate()).isEqualTo(tomorrow);
+                softAssertions.assertThat(ticket.getCapacity()).isEqualTo(request.capacity());
             });
         }
 
@@ -107,6 +123,31 @@ class DemoDayServiceTest extends ServiceTest {
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(response.demoDays()).hasSize(3);
                 softly.assertThat(response.demoDays()).usingRecursiveComparison().isEqualTo(expected);
+            });
+        }
+    }
+
+    @DisplayName("데모데이 신청")
+    @Nested
+    class apply {
+        @DisplayName("데모데이를 신청하면 티켓이 하나 감소한다.")
+        @Test
+        void applyDemoDay() {
+            // given
+            final User DemoDayOwner = testUserFactory.createUser("test@test.com", "test", "test", 1);
+            final User DemoDayUser = testUserFactory.createUser("test2@test.com", "test2", "test2", 1);
+            final DemoDay demoDayOpen = testDemoDayFactory.createDemoDayOpen("title", "description", DemoDayOwner.getId());
+            testTicketFactory.createNTicket(demoDayOpen, 1);
+
+            // when
+            demoDayService.applyDemoDay(DemoDayUser.getId(), demoDayOpen.getId());
+
+            // then
+            final Optional<DemoDayUser> byDemoDayIdAndUserId = demoDayUserRepository.findByDemoDayIdAndUserId(demoDayOpen.getId(), DemoDayUser.getId());
+            final Ticket ticket = ticketRepository.findByDemoDayId(demoDayOpen.getId()).get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(ticket.getCapacity()).isEqualTo(0);
+                softly.assertThat(byDemoDayIdAndUserId.isPresent()).isTrue();
             });
         }
     }
