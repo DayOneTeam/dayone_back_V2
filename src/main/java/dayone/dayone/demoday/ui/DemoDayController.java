@@ -39,6 +39,6 @@ public class DemoDayController {
     @PostMapping("/{demoDayId}/apply")
     public CommonResponseDto<Void> applyDemoDay(@AuthUser final Long userId, @PathVariable("demoDayId") final Long demoDayId) {
         demoDayService.applyDemoDay(userId, demoDayId);
-        return CommonResponseDto.forSuccess(1, "데모데이 산청 성공", null);
+        return CommonResponseDto.forSuccess(1, "데모데이 신청 성공", null);
     }
 }
