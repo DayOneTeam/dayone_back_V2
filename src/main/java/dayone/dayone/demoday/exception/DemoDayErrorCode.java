@@ -11,7 +11,8 @@ public enum DemoDayErrorCode implements ErrorCode {
     NOT_EXIST_DEMO_DAY(HttpStatus.NOT_FOUND, 5004, "데모데이가 존재하지 않습니다."),
     DEMO_DAY_IS_CLOSED(HttpStatus.BAD_REQUEST, 5005, "데모데이가 종료되었습니다."),
     DEMO_DAY_OWNER_NOT_APPLY_ONESELF(HttpStatus.BAD_REQUEST, 5006, "자신이 등록한 데모데이에는 신청할 수 없습니다."),
-    DEMO_DAY_IS_FULL(HttpStatus.BAD_REQUEST, 5007, "데모데이가 참여 인원이 만료되었습니다.");
+    DEMO_DAY_IS_FULL(HttpStatus.BAD_REQUEST, 5007, "데모데이가 참여 인원이 만료되었습니다."),
+    DEMO_DAY_ALREADY_APPLY(HttpStatus.BAD_REQUEST, 5008, "이미 등록된 데모데이에 신청할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;

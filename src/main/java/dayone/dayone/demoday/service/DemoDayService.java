@@ -2,6 +2,7 @@ package dayone.dayone.demoday.service;
 
 import dayone.dayone.demoday.entity.DemoDay;
 import dayone.dayone.demoday.entity.DemoDayUser;
+import dayone.dayone.demoday.entity.DemoDayUsers;
 import dayone.dayone.demoday.entity.Ticket;
 import dayone.dayone.demoday.entity.respository.DemoDayRepository;
 import dayone.dayone.demoday.entity.respository.DemoDayUserRepository;
@@ -62,8 +63,9 @@ public class DemoDayService {
             .orElseThrow(() -> new UserException(DemoDayErrorCode.NOT_EXIST_DEMO_DAY));
         final Ticket ticket = ticketRepository.findByDemoDayId(demoDayId)
             .orElseThrow(() -> new UserException(DemoDayErrorCode.NOT_EXIST_DEMO_DAY));
+        final List<DemoDayUser> demoDayUsers = demoDayUserRepository.findByDemoDayId(demoDayId);
 
-        final DemoDayUser apply = demoDay.apply(user, ticket);
+        final DemoDayUser apply = demoDay.apply(user, ticket, new DemoDayUsers(demoDayUsers));
         demoDayUserRepository.save(apply);
     }
 }

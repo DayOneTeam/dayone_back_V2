@@ -98,13 +98,13 @@ public class DemoDay extends BaseEntity {
         );
     }
 
-    public DemoDayUser apply(final User user, final Ticket ticket) {
-        validateApply(user, ticket);
+    public DemoDayUser apply(final User user, final Ticket ticket, final DemoDayUsers demoDayUsers) {
+        validateApply(user, ticket, demoDayUsers);
         ticket.sold();
         return new DemoDayUser(null, this.id, user.getId());
     }
 
-    private void validateApply(final User user, final Ticket ticket) {
+    private void validateApply(final User user, final Ticket ticket, final DemoDayUsers demoDayUsers) {
         if (this.status == Status.CLOSED) {
             throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_IS_CLOSED);
         }
@@ -115,6 +115,10 @@ public class DemoDay extends BaseEntity {
 
         if (ticket.getCapacity() == 0) {
             throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_IS_FULL);
+        }
+
+        if (demoDayUsers.isAlreadyApply(user.getId())) {
+            throw new DemoDayException(DemoDayErrorCode.DEMO_DAY_ALREADY_APPLY);
         }
     }
 
