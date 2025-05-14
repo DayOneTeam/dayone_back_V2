@@ -27,6 +27,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -148,6 +151,38 @@ class DemoDayServiceTest extends ServiceTest {
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(ticket.getCapacity()).isEqualTo(0);
                 softly.assertThat(byDemoDayIdAndUserId.isPresent()).isTrue();
+            });
+        }
+
+        @DisplayName("티켓의 개수가 1개인 데모데이에 10명의 유저가 동시에 참여 요청을 하더라도 1명한 참여 가능하다.")
+        @Test
+        void applyDemoDayWithConcurrent() throws InterruptedException {
+            // given
+            final User DemoDayOwner = testUserFactory.createUser("test@test.com", "test", "test", 1);
+            final List<User> users = testUserFactory.createNUser(10, "test2@test.com", "test2", "test2", 1);
+
+
+            final DemoDay demoDayOpen = testDemoDayFactory.createDemoDayOpen("title", "description", DemoDayOwner.getId());
+            final Ticket tickets = testTicketFactory.createNTicket(demoDayOpen, 1);
+
+            final ExecutorService executorService = Executors.newFixedThreadPool(users.size());
+            final CountDownLatch countDownLatch = new CountDownLatch(users.size());
+
+            // when
+            for (final User user : users) {
+                executorService.submit(() -> {
+                    demoDayService.applyDemoDay(user.getId(), demoDayOpen.getId());
+                    countDownLatch.countDown();
+                });
+            }
+            countDownLatch.await();
+
+            // then
+            final List<DemoDayUser> result = demoDayUserRepository.findByDemoDayId(demoDayOpen.getId());
+            final Ticket ticket = ticketRepository.findByDemoDayId(demoDayOpen.getId()).get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(result).hasSize(tickets.getCapacity());
+                softly.assertThat(ticket.getCapacity()).isEqualTo(0);
             });
         }
     }
