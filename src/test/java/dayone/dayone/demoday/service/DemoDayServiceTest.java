@@ -193,5 +193,44 @@ class DemoDayServiceTest extends ServiceTest {
                 softly.assertThat(errorCount.get()).isEqualTo(users.size() - 1);
             });
         }
+
+        @DisplayName("같은 유저가 빠르게 2번 데모데이에 신청하더라도 1번만 신청 처리된다.")
+        @Test
+        void applyDemoDayWithConcurrentSameUser() throws InterruptedException {
+            // given
+            final User DemoDayOwner = testUserFactory.createUser("test@test.com", "test", "test", 1);
+            final DemoDay demoDayOpen = testDemoDayFactory.createDemoDayOpen("title", "description", DemoDayOwner.getId());
+            testTicketFactory.createNTicket(demoDayOpen, 2);
+
+            final User demodayUser = testUserFactory.createUser("test2@test.com", "test2", "test2", 1);
+
+            final int threadCount = 2;
+            final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+            final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+            // when
+            final AtomicInteger errorCount = new AtomicInteger(0);
+            for (int i = 0; i < threadCount; i++) {
+                executorService.submit(() -> {
+                    try {
+                        demoDayService.applyDemoDay(demodayUser.getId(), demoDayOpen.getId());
+                    } catch (Exception ignored) {
+                        errorCount.incrementAndGet();
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                });
+            }
+            countDownLatch.await();
+
+            // then
+            final List<DemoDayUser> demoDayUsers = demoDayUserRepository.findByDemoDayId(demoDayOpen.getId());
+            final Ticket ticket = ticketRepository.findByDemoDayId(demoDayOpen.getId()).get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(demoDayUsers).hasSize(1);
+                softly.assertThat(ticket.getCapacity()).isEqualTo(1);
+                softly.assertThat(errorCount.get()).isEqualTo(threadCount - 1);
+            });
+        }
     }
 }
