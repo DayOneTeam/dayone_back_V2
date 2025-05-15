@@ -27,6 +27,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -148,6 +152,84 @@ class DemoDayServiceTest extends ServiceTest {
             SoftAssertions.assertSoftly(softly -> {
                 softly.assertThat(ticket.getCapacity()).isEqualTo(0);
                 softly.assertThat(byDemoDayIdAndUserId.isPresent()).isTrue();
+            });
+        }
+
+        @DisplayName("티켓의 개수가 1개인 데모데이에 10명의 유저가 동시에 참여 요청을 하더라도 1명한 참여 가능하다.")
+        @Test
+        void applyDemoDayWithConcurrent() throws InterruptedException {
+            // given
+            final User DemoDayOwner = testUserFactory.createUser("test@test.com", "test", "test", 1);
+            final List<User> users = testUserFactory.createNUser(10, "test2@test.com", "test2", "test2", 1);
+
+
+            final DemoDay demoDayOpen = testDemoDayFactory.createDemoDayOpen("title", "description", DemoDayOwner.getId());
+            final Ticket tickets = testTicketFactory.createNTicket(demoDayOpen, 1);
+
+            final ExecutorService executorService = Executors.newFixedThreadPool(users.size());
+            final CountDownLatch countDownLatch = new CountDownLatch(users.size());
+
+            // when
+            final AtomicInteger errorCount = new AtomicInteger(0);
+            for (final User user : users) {
+                executorService.submit(() -> {
+                    try {
+                        demoDayService.applyDemoDay(user.getId(), demoDayOpen.getId());
+                    } catch (Exception ignored) {
+                        errorCount.incrementAndGet();
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                });
+            }
+
+            countDownLatch.await();
+
+            final List<DemoDayUser> demoDayUsers = demoDayUserRepository.findByDemoDayId(demoDayOpen.getId());
+            final Ticket ticket = ticketRepository.findByDemoDayId(demoDayOpen.getId()).get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(demoDayUsers).hasSize(tickets.getCapacity());
+                softly.assertThat(ticket.getCapacity()).isEqualTo(0);
+                softly.assertThat(errorCount.get()).isEqualTo(users.size() - 1);
+            });
+        }
+
+        @DisplayName("같은 유저가 빠르게 2번 데모데이에 신청하더라도 1번만 신청 처리된다.")
+        @Test
+        void applyDemoDayWithConcurrentSameUser() throws InterruptedException {
+            // given
+            final User DemoDayOwner = testUserFactory.createUser("test@test.com", "test", "test", 1);
+            final DemoDay demoDayOpen = testDemoDayFactory.createDemoDayOpen("title", "description", DemoDayOwner.getId());
+            testTicketFactory.createNTicket(demoDayOpen, 2);
+
+            final User demodayUser = testUserFactory.createUser("test2@test.com", "test2", "test2", 1);
+
+            final int threadCount = 2;
+            final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+            final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+            // when
+            final AtomicInteger errorCount = new AtomicInteger(0);
+            for (int i = 0; i < threadCount; i++) {
+                executorService.submit(() -> {
+                    try {
+                        demoDayService.applyDemoDay(demodayUser.getId(), demoDayOpen.getId());
+                    } catch (Exception ignored) {
+                        errorCount.incrementAndGet();
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                });
+            }
+            countDownLatch.await();
+
+            // then
+            final List<DemoDayUser> demoDayUsers = demoDayUserRepository.findByDemoDayId(demoDayOpen.getId());
+            final Ticket ticket = ticketRepository.findByDemoDayId(demoDayOpen.getId()).get();
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThat(demoDayUsers).hasSize(1);
+                softly.assertThat(ticket.getCapacity()).isEqualTo(1);
+                softly.assertThat(errorCount.get()).isEqualTo(threadCount - 1);
             });
         }
     }
