@@ -61,7 +61,7 @@ public class DemoDayService {
             .orElseThrow(() -> new UserException(UserErrorCode.NOT_EXIST_USER));
         final DemoDay demoDay = demoDayRepository.findById(demoDayId)
             .orElseThrow(() -> new UserException(DemoDayErrorCode.NOT_EXIST_DEMO_DAY));
-        final Ticket ticket = ticketRepository.findByDemoDayId(demoDayId)
+        final Ticket ticket = ticketRepository.findByDemoDayIdForUpdate(demoDayId)
             .orElseThrow(() -> new UserException(DemoDayErrorCode.NOT_EXIST_DEMO_DAY));
         final List<DemoDayUser> demoDayUsers = demoDayUserRepository.findByDemoDayId(demoDayId);
 

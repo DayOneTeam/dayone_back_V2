@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -169,20 +170,27 @@ class DemoDayServiceTest extends ServiceTest {
             final CountDownLatch countDownLatch = new CountDownLatch(users.size());
 
             // when
+            final AtomicInteger errorCount = new AtomicInteger(0);
             for (final User user : users) {
                 executorService.submit(() -> {
-                    demoDayService.applyDemoDay(user.getId(), demoDayOpen.getId());
-                    countDownLatch.countDown();
+                    try {
+                        demoDayService.applyDemoDay(user.getId(), demoDayOpen.getId());
+                    } catch (Exception ignored) {
+                        errorCount.incrementAndGet();
+                    } finally {
+                        countDownLatch.countDown();
+                    }
                 });
             }
+
             countDownLatch.await();
 
-            // then
-            final List<DemoDayUser> result = demoDayUserRepository.findByDemoDayId(demoDayOpen.getId());
+            final List<DemoDayUser> demoDayUsers = demoDayUserRepository.findByDemoDayId(demoDayOpen.getId());
             final Ticket ticket = ticketRepository.findByDemoDayId(demoDayOpen.getId()).get();
             SoftAssertions.assertSoftly(softly -> {
-                softly.assertThat(result).hasSize(tickets.getCapacity());
+                softly.assertThat(demoDayUsers).hasSize(tickets.getCapacity());
                 softly.assertThat(ticket.getCapacity()).isEqualTo(0);
+                softly.assertThat(errorCount.get()).isEqualTo(users.size() - 1);
             });
         }
     }
