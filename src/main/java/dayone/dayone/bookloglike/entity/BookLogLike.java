@@ -5,15 +5,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Table(name = "book_log_like", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"user_id", "book_log_id"})
+})
 @Entity
 public class BookLogLike extends BaseEntity {
 
