@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -112,7 +113,7 @@ class BookLogLikeServiceTest extends ServiceTest {
             final List<User> users = testUserFactory.createNUser(10, "test@test.com", "password", "이름", 1);
             final BookLog bookLog = testBookLogFactory.createBookLog(book, users.get(0));
 
-            int threadCount = 10;
+            final int threadCount = 10;
             final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
             final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
@@ -133,6 +134,45 @@ class BookLogLikeServiceTest extends ServiceTest {
             SoftAssertions.assertSoftly(softAssertions -> {
                 softAssertions.assertThat(likedBookLog.getLikeCount()).isEqualTo(10);
                 softAssertions.assertThat(bookLogLikeByBookLogId).hasSize(10);
+            });
+        }
+
+        @DisplayName("같은 유저가 같은 BookLog에 좋아요를 동시에 2번 추가할 경우 1번만 추가된다.")
+        @Test
+        void addLikeOnBookLogWithConcurrentSameUser() throws InterruptedException {
+            // given
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
+
+            final User anotherUser = testUserFactory.createUser("test2@test.com", "password", "이름", 1);
+
+            final int threadCount = 2;
+            final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+            final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+            // when
+            final AtomicInteger errorCount = new AtomicInteger(0);
+            for (int i = 0; i < threadCount; i++) {
+                executorService.submit(() -> {
+                    try {
+                        bookLogLikeService.addLike(bookLog.getId(), anotherUser.getId());
+                    } catch (Exception ignored) {
+                        errorCount.incrementAndGet();
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                });
+            }
+            countDownLatch.await();
+
+            // then
+            final BookLog likedBookLog = bookLogRepository.findById(bookLog.getId()).get();
+            final List<BookLogLike> bookLogLikeByBookLogId = bookLogLikeRepository.findAllByBookLogId(bookLog.getId());
+            SoftAssertions.assertSoftly(softAssertions -> {
+                softAssertions.assertThat(likedBookLog.getLikeCount()).isEqualTo(1);
+                softAssertions.assertThat(bookLogLikeByBookLogId).hasSize(1);
+                softAssertions.assertThat(errorCount.get()).isEqualTo(threadCount - 1);
             });
         }
     }
@@ -203,7 +243,7 @@ class BookLogLikeServiceTest extends ServiceTest {
             final BookLog bookLog = testBookLogFactory.createBookLog(book, users.get(0));
             testBookLogLikeFactory.createNBookLogLike(bookLog.getId(), users);
 
-            int threadCount = 10;
+            final int threadCount = 10;
             final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
             final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
@@ -222,6 +262,47 @@ class BookLogLikeServiceTest extends ServiceTest {
             SoftAssertions.assertSoftly(softAssertions -> {
                 softAssertions.assertThat(notLikedBookLog.getLikeCount()).isEqualTo(0);
                 softAssertions.assertThat(bookLogLikeByBookLogId).hasSize(0);
+            });
+        }
+
+        @DisplayName("같은 유저가 BookLog에 좋아요 취소를 동시에 두번 하더라도 1번만 취소 처리된다.")
+        @Test
+        void deleteLikeOnBookLogWithConcurrentSameUser() throws InterruptedException {
+            // given
+            final Book book = testBookFactory.createBook("책", "작가", "출판사");
+            final User user = testUserFactory.createUser("test@test.com", "password", "이름", 1);
+            final BookLog bookLog = testBookLogFactory.createBookLog(book, user);
+
+            final User anotherUser = testUserFactory.createUser("test2@test.com", "password", "이름", 1);
+            testBookLogLikeFactory.createNBookLogLike(bookLog.getId(), List.of(anotherUser));
+
+            final int threadCount = 2;
+            final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+            final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+            // when
+            final AtomicInteger errorCount = new AtomicInteger(0);
+            for (int i = 0; i < threadCount; i++) {
+                executorService.submit(() -> {
+                    try {
+                        bookLogLikeService.deleteLike(bookLog.getId(), anotherUser.getId());
+                    } catch (Exception ignored) {
+                        errorCount.incrementAndGet();
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+
+                });
+            }
+            countDownLatch.await();
+
+            // then
+            final BookLog notLikedBookLog = bookLogRepository.findById(bookLog.getId()).get();
+            final List<BookLogLike> bookLogLikeByBookLogId = bookLogLikeRepository.findAllByBookLogId(bookLog.getId());
+            SoftAssertions.assertSoftly(softAssertions -> {
+                softAssertions.assertThat(notLikedBookLog.getLikeCount()).isEqualTo(0);
+                softAssertions.assertThat(bookLogLikeByBookLogId).hasSize(0);
+                softAssertions.assertThat(errorCount.get()).isEqualTo(threadCount - 1);
             });
         }
     }
